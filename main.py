@@ -12,6 +12,7 @@ COLORS = {
     2: (160, 160, 160)
 }
 
+
 class Tilemap:
     def __init__(self):
         self.map = []
@@ -29,11 +30,11 @@ class Tilemap:
 
     def render(self, surface, player_x, player_y):
         # 32x32
-        for x, c in enumerate(self.map[player_x:player_x+40]): # bouge en fonction du joueur
-            for y, tile in enumerate(c[player_y:player_y+23]):
+        for x, c in enumerate(self.map[player_x: player_x + 40]): # bouge en fonction du joueur. 40 = 1280 / 32, 23 = 720 / 32
+            for y, tile in enumerate(c[player_y: player_y + 23]):
                 pygame.draw.rect(surface, COLORS[tile], pygame.Rect(x * 32, y * 32, 32, 32))
 
-class FPS_counter:
+class FPSCounter:
     def __init__(self, clock, screen):
         self.clock = clock
         self.screen = screen
@@ -53,14 +54,16 @@ class Player:
         pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(SCREEN_WIDTH//2, SCREEN_HEIGHT//2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
 
 class EventHandler:
-    def __init__(self):
+    def __init__(self, game):
+        self.game = game # Game pointer
         self.cooldown = 0 # pour ralentir la vitesse du personnage, l'action d'avancer ne s'execute qu'une fois sur 2
 
     def didQuit(self):
         # Did the user click the window close button?
         for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
+            if event.type == pygame.QUIT:
+                game.running = False
+                    
     def movePlayer(self, player):
         keys = pygame.key.get_pressed()
         self.cooldown += 1
@@ -83,17 +86,19 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.tilemap = Tilemap()
         self.clock = pygame.time.Clock()
-        self.fps_counter = FPS_counter(self.clock, self.screen)
+        self.fps_counter = FPSCounter(self.clock, self.screen)
         self.player = Player(10, 10)
-        self.EventHandler = EventHandler()
+        self.event_handler = EventHandler(self)
+        self.running = True
+        
     def run(self):
         # Run until the user asks to quit
-        running = True
+        
 
-        while running:
+        while self.running:
 
-            self.EventHandler.didQuit()
-            self.EventHandler.movePlayer(self.player)
+            self.event_handler.didQuit()
+            self.event_handler.movePlayer(self.player)
 
             # Fill the background with white
             self.screen.fill((255, 255, 255))
