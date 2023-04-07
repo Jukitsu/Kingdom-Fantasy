@@ -30,12 +30,12 @@ class PlayerAnimations:
         numberOfPhases = len(duration) 
         self.ticks[0] += 1
         for d in range(numberOfPhases):
-            if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
+            if d == numberOfPhases - 1 and duration[d] <= self.ticks[0] // 25:
                 self.ticks[0] = 0
-                self.player.render(path + str(0) + ".png")
+                self.player.render(f"{path}0.png")
                 return 
             if self.ticks[0]//25 < duration[d]:
-                self.player.render(path + str(d) + ".png")
+                self.player.render(f"{path}{d}.png")
                 return
 
     def idle(self):
@@ -44,4 +44,4 @@ class PlayerAnimations:
 
     def walk(self, direction):
         self.changeTicks("walk"+direction)
-        self.animationPhases("./resources/animations/player/walk/walk"+direction, [0.5, 1.5, 2])
+        self.animationPhases(f"./resources/animations/player/walk/walk{direction}", [0.5, 1.5, 2])
