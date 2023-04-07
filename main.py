@@ -1,6 +1,8 @@
 import pygame, random, time, threading
 from animations import PlayerAnimations
 from perlin_noise import PerlinNoise
+import pathlib
+import pickle
 
 StartTime=time.time()
 MAP_SIZE = 6400
@@ -16,28 +18,32 @@ COLORS = {
 def log(*args, **kw): # Debug
     print(*args, **kw)
 
+class Level:
+    def __init__(self):
+        self.tilemap = None
+        self.player_coords = (0, 0)
+        
 class Tilemap:
     def __init__(self):
         self.map = []
-        self.generateMap()
 
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
-            self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)]
-            noise = PerlinNoise(octaves = 50, seed = 500)
+        self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
+        noise = PerlinNoise(octaves = 50, seed = 500)
 
-            log("Generating Terrain")
+        log("Generating Terrain")
 
-            # Generating Terrain
-            for i in range(1000):
-                for j in range(1000):
-                    height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
-                    if height < 10:
-                        self.map[i][j] = 0
-                    elif height < 60:
-                        self.map[i][j] = 1
-                    else:
-                        self.map[i][j] = 2
-            log("Terrain Generated.")
+        # Generating Terrain
+        for i in range(1000):
+            for j in range(1000):
+                height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
+                if height < 10:
+                    self.map[i][j] = 0
+                elif height < 60:
+                    self.map[i][j] = 1
+                else:
+                    self.map[i][j] = 2
+        log("Terrain Generated")
 
 
     def render(self, surface, player_x, player_y):
@@ -58,9 +64,8 @@ class FPScounter:
         self.screen.blit(img, (2, 2))
 
 class Player:
-    def __init__(self, x, y, screen):
-        self.x = x
-        self.y = y
+    def __init__(self, coords, screen):
+        self.x, self.y = coords
         self.speed = 1
         self.screen = screen
 
@@ -124,13 +129,36 @@ class Game:
         # Initialize pygame
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
-        self.tilemap = Tilemap()
+        self.level = Level()
+        self.tilemap = None
+        
+        if not pathlib.Path("save/level.dat").exists():
+            self.tilemap = Tilemap()
+            self.tilemap.generateMap()
+            self.level.tilemap = self.tilemap
+        else:
+            self.load()
+                        
         self.clock = pygame.time.Clock()
-        self.player = Player(10, 10, self.screen)
+        self.player = Player(self.level.player_coords, self.screen)
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.event_handler = EventHandler(self)
         self.running = True
+
+    def load(self):
+        with open("save/level.dat", "rb") as f:
+            log("Loading level")
+            self.level = pickle.load(f)
+            self.tilemap = self.level.tilemap
+            log("Level loaded")
+
+    def save(self):
+        with open("save/level.dat", "wb") as f:
+            log("Saving level")
+            self.level.player_coords = (self.player.x, self.player.y)
+            pickle.dump(self.level, f)
+            log("Level saved")
 
     def run(self):
         # Run until the user asks to quit
@@ -147,11 +175,15 @@ class Game:
             # fps
             self.clock.tick()
             self.fps_counter.display()
+            self.event_handler.movePlayer(self.player, self.playerAnimations)
             # Flip the display
             pygame.display.flip()
 
         # Done! Time to quit.
+        self.save()
         pygame.quit()
+
+    
 
 
 if __name__ == "__main__":
