@@ -1,5 +1,6 @@
 import pygame, random
 import time, threading
+from perlin_noise import PerlinNoise
 
 StartTime=time.time()
 MAP_SIZE = 6400
@@ -7,25 +8,37 @@ SCREEN_WIDTH=1280
 SCREEN_HEIGHT=720
 
 COLORS = {
-    0: (0, 255, 0),
-    1: (0, 0, 255),
-    2: (160, 160, 160)
+    0: (0, 0, 255), # Water
+    1: (0, 255, 0), # Plains
+    2: (160, 160, 160) # Mountains
 }
 
+def log(*args, **kw): # Debug
+    print(*args, **kw)
 
 class Tilemap:
     def __init__(self):
         self.map = []
         self.generateMap()
 
-    def generateMap(self): # fonction a modifier c'est pour tester les couleurs 
-        # plains
-        self.map = [[0 for i in range(MAP_SIZE)] for j in range(MAP_SIZE)]
+    def generateMap(self): # fonction a modifier c'est pour tester les couleurs
+        self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)]
+        noise = PerlinNoise(octaves = 50, seed = 500)
         
-        # mountains
-        for i in range(100):
-            for j in range(100):
-                self.map[i][j] = 2
+        log("Generating Terrain")
+        
+        # Generating Terrain
+        for i in range(1000):
+            for j in range(1000):
+                height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
+                if height < 10:
+                    self.map[i][j] = 0
+                elif height < 60:
+                    self.map[i][j] = 1
+                else:
+                    self.map[i][j] = 2
+
+        log("Terrain Generated.")
 
 
     def render(self, surface, player_x, player_y):
@@ -35,13 +48,14 @@ class Tilemap:
                 pygame.draw.rect(surface, COLORS[tile], pygame.Rect(x * 32, y * 32, 32, 32))
 
 class FPSCounter:
-    def __init__(self, clock, screen):
+    def __init__(self, clock, screen, player):
         self.clock = clock
         self.screen = screen
+        self.player = player
 
     def display(self):
         font = pygame.font.SysFont(None, 30)
-        img = font.render(str(round(self.clock.get_fps())), True, (0, 0, 0))
+        img = font.render(f"{round(self.clock.get_fps())}, X: {self.player.x}, Y: {self.player.y}", True, (0, 0, 0))
         self.screen.blit(img, (2, 2))
 
 class Player:
@@ -86,8 +100,8 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.tilemap = Tilemap()
         self.clock = pygame.time.Clock()
-        self.fps_counter = FPSCounter(self.clock, self.screen)
         self.player = Player(10, 10)
+        self.fps_counter = FPSCounter(self.clock, self.screen, self.player)
         self.event_handler = EventHandler(self)
         self.running = True
         
