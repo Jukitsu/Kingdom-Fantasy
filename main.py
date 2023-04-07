@@ -48,9 +48,9 @@ class Tilemap:
 
     def render(self, surface, player_x, player_y):
         # 32x32
-        for x, c in enumerate(self.map[player_x: player_x + 40]): # bouge en fonction du joueur. 40 = 1280 / 32, 23 = 720 / 32
-            for y, tile in enumerate(c[player_y: player_y + 23]):
-                pygame.draw.rect(surface, COLORS[tile], pygame.Rect(x * 32, y * 32, 32, 32))
+        for x, c in enumerate(self.map[player_x: player_x + 80]): # bouge en fonction du joueur. 40 = 1280 / 32, 23 = 720 / 32
+            for y, tile in enumerate(c[player_y: player_y + 46]):
+                pygame.draw.rect(surface, COLORS[tile], pygame.Rect(x * 16, y * 16, 16, 16))
 
 class FPScounter:
     def __init__(self, clock, screen, player):
