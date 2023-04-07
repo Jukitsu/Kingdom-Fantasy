@@ -119,8 +119,6 @@ class EventHandler:
         if not (keys[pygame.K_z] or keys[pygame.K_q] or keys[pygame.K_s] or keys[pygame.K_d]):
             playerAnimations.idle()
 
-            
-            
 class Game:
     def __init__(self):
         # Initialize pygame
