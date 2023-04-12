@@ -27,6 +27,7 @@ class Tilemap:
     def __init__(self):
         self.map = []
         self.view_offset = [0, 0]
+        self.surface = pygame.Surface(())
 
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
@@ -49,9 +50,10 @@ class Tilemap:
 
     def render(self, surface, player):
         # 32x32
-        for x, c in enumerate(self.map[round(player.x - 40): round(player.x + 40)]): # bouge en fonction du joueur. 40 = 1280 / 32, 23 = 720 / 32
-            for y, tile in enumerate(c[round(player.y - 23): round(player.y + 23)]): # CLIP
-                pygame.draw.rect(surface, COLORS[tile], pygame.Rect(x * 16, y * 16, 16, 16))
+        for x in range(round(player.x - 44), round(player.x + 44)):
+            for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
+                tile = self.map[x][y]
+                pygame.draw.rect(surface, COLORS[tile] if x != round(player.x) or y != round(player.y) else (255, 0, 0), pygame.Rect(x * 16 - round(player.x * 16) + SCREEN_WIDTH // 2, y * 16 - round(player.y * 16) + SCREEN_HEIGHT // 2, 16, 16))
 
 class FPScounter:
     def __init__(self, clock, screen, player):
@@ -157,6 +159,7 @@ class Game:
         with open("save/level.dat", "rb") as f:
             log("Loading level")
             self.level = pickle.load(f)
+            self.level.player_coords = (50, 50)
             self.tilemap = self.level.tilemap
             log("Level loaded")
 
