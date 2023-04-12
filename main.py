@@ -169,7 +169,6 @@ class Game:
         with open("save/level.dat", "rb") as f:
             log("Loading level")
             self.level = pickle.load(f)
-            self.level.player_coords = (50, 50)
             self.tilemap = self.level.tilemap
             log("Level loaded")
 
