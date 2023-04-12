@@ -68,19 +68,46 @@ class FPScounter:
         img = font.render(f"{round(self.clock.get_fps())}, X: {self.player.x}, Y: {self.player.y}", True, (0, 0, 0))
         self.screen.blit(img, (2, 2))
 
-class Player:
+class Player(pygame.sprite.Sprite):
     def __init__(self, coords, screen):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load("./resources/animations/player/idle/idle00.png"), (128, 128))
+        self.rect = self.image.get_rect()
+        self.x, self.y = coords
+        self.velocity = [0, 0]
+        self.speed = 7
+        self.screen = screen
+        self.collider = pygame.Rect(self.x, self.y, 16, 16) 
+
+    def render(self, skin="./resources/animations/player/idle/idle00.png"):
+        self.image = pygame.transform.scale(pygame.image.load(skin), (128, 128))
+        self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+        
+    def move(self, delta_time):
+        self.x += self.velocity[0] * delta_time * self.speed
+        self.y += self.velocity[1] * delta_time * self.speed
+        print(self.x, self.y)
+        
+        self.velocity = [0, 0]
+        
+        
+class Player(pygame.sprite.Sprite):
+    def __init__(self, coords, screen):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load("./resources/animations/player/idle/idle00.png"), (128, 128))
+        self.rect = self.image.get_rect()
         self.x, self.y = coords
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
         self.speed = 16
         self.screen = screen
-
-    def render(self, skin="./resources/animations/player/idle/idle00.png"):
-        img = pygame.transform.scale(pygame.image.load(skin), (128, 128))
-        self.screen.blit(img, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+        self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         
+    def render(self, skin="./resources/animations/player/idle/idle00.png"):
+        self.image = pygame.transform.scale(pygame.image.load(skin), (128, 128))
+        self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+   
     def move(self, delta_time):
         self.velocity = [v + a * f * delta_time for v, a, f in zip(self.velocity, self.accel, self.friction)]
         
@@ -110,7 +137,7 @@ class EventHandler:
         player_input = [0, 0]
 
         if keys[pygame.K_q]:
-            playerAnimations.walk("l")
+            playerAnimations.walk("l", player.velocity)
             alreadyAnimated = True
             
             if player.x-player.speed > 40: 
@@ -118,21 +145,21 @@ class EventHandler:
                 
         if keys[pygame.K_d]:
             if not alreadyAnimated:
-                playerAnimations.walk("r")
+                playerAnimations.walk("r", player.velocity)
                 alreadyAnimated = True
             if player.x+player.speed < MAP_SIZE - 39:
                player_input[0] += 1
 
         if keys[pygame.K_z]:
             if not alreadyAnimated:
-                playerAnimations.walk("b")
+                playerAnimations.walk("b", player.velocity)
                 alreadyAnimated = True
             if player.y-player.speed > 23:
                 player_input[1] -= 1
 
         if keys[pygame.K_s]:
             if not alreadyAnimated:
-                playerAnimations.walk("f")
+                playerAnimations.walk("f", player.velocity)
                 alreadyAnimated = True
             if player.y+player.speed < MAP_SIZE - 22:
                 player_input[1] += 1
@@ -169,7 +196,6 @@ class Game:
         with open("save/level.dat", "rb") as f:
             log("Loading level")
             self.level = pickle.load(f)
-            self.level.player_coords = (50, 50)
             self.tilemap = self.level.tilemap
             log("Level loaded")
 

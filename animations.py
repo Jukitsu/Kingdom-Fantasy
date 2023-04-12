@@ -1,5 +1,5 @@
 
-import pygame, threading
+import pygame, threading, math
 
 def set_interval(func, sec):
    def func_wrapper():
@@ -27,9 +27,10 @@ class PlayerAnimations:
         if self.ticks[1] != self.STATUS[status]:
             self.ticks = [0, self.STATUS[status]]
 
-    def animationPhases(self, path, duration): 
+    def animationPhases(self, path, duration, velocity):
+        velocityValue = math.sqrt(velocity[0]**2 + velocity[1]**2)
         numberOfPhases = len(duration) 
-        self.ticks[0] += 1
+        self.ticks[0] += velocityValue 
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
                 self.ticks[0] = 0
@@ -39,10 +40,10 @@ class PlayerAnimations:
                 self.player.render(path + str(d) + ".png")
                 return
 
-    def idle(self):
-        self.changeTicks("idle")
+    def idle(self, velocity):
+        self.changeTicks("idle", velocity)
         self.animationPhases("./resources/animations/player/idle/idle0", [8, 10, 18, 19])
 
-    def walk(self, direction):
-        self.changeTicks("walk"+direction)
+    def walk(self, direction, velocity):
+        self.changeTicks("walk"+direction, velocity)
         self.animationPhases("./resources/animations/player/walk/walk"+direction, [8, 16, 17] if direction == "b" or direction == "f" else [6, 12, 18, 22])
