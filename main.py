@@ -9,6 +9,8 @@ MAP_SIZE = 6400
 SCREEN_WIDTH=1280
 SCREEN_HEIGHT=720
 
+FRICTION = ( 16,  16,  16)
+
 COLORS = {
     0: (0, 0, 255), # Water
     1: (0, 255, 0), # Plains
@@ -70,7 +72,9 @@ class Player:
     def __init__(self, coords, screen):
         self.x, self.y = coords
         self.velocity = [0, 0]
-        self.speed = 7
+        self.accel = [0, 0]
+        self.friction = FRICTION
+        self.speed = 16
         self.screen = screen
 
     def render(self, skin="./resources/animations/player/idle/idle00.png"):
@@ -78,11 +82,13 @@ class Player:
         self.screen.blit(img, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
         
     def move(self, delta_time):
+        self.velocity = [v + a * f * delta_time for v, a, f in zip(self.velocity, self.accel, self.friction)]
+        
         self.x += self.velocity[0] * delta_time * self.speed
         self.y += self.velocity[1] * delta_time * self.speed
         print(self.x, self.y)
         
-        self.velocity = [0, 0]
+        self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]
         
 
 class EventHandler:
@@ -101,34 +107,38 @@ class EventHandler:
         keys = pygame.key.get_pressed()
         alreadyAnimated = False
         
+        player_input = [0, 0]
 
         if keys[pygame.K_q]:
             playerAnimations.walk("l")
             alreadyAnimated = True
             
             if player.x-player.speed > 40: 
-                player.velocity[0] -= 1
+                player_input[0] -= 1
                 
         if keys[pygame.K_d]:
             if not alreadyAnimated:
                 playerAnimations.walk("r")
                 alreadyAnimated = True
             if player.x+player.speed < MAP_SIZE - 39:
-               player.velocity[0] += 1
+               player_input[0] += 1
 
         if keys[pygame.K_z]:
             if not alreadyAnimated:
                 playerAnimations.walk("b")
                 alreadyAnimated = True
             if player.y-player.speed > 23:
-                player.velocity[1] -= 1
+                player_input[1] -= 1
 
         if keys[pygame.K_s]:
             if not alreadyAnimated:
                 playerAnimations.walk("f")
                 alreadyAnimated = True
             if player.y+player.speed < MAP_SIZE - 22:
-                player.velocity[1] += 1
+                player_input[1] += 1
+                
+            
+        player.accel[0], player.accel[1] = player_input[0], player_input[1]
         
         if not (keys[pygame.K_z] or keys[pygame.K_q] or keys[pygame.K_s] or keys[pygame.K_d]):
             playerAnimations.idle()
