@@ -131,7 +131,7 @@ class EventHandler:
         player_input = [0, 0]
 
         if keys[pygame.K_q]:
-            playerAnimations.walk("l")
+            playerAnimations.walk("l", player.velocity)
             alreadyAnimated = True
             
             if player.x-player.speed > 40: 
@@ -139,21 +139,21 @@ class EventHandler:
                 
         if keys[pygame.K_d]:
             if not alreadyAnimated:
-                playerAnimations.walk("r")
+                playerAnimations.walk("r", player.velocity)
                 alreadyAnimated = True
             if player.x+player.speed < MAP_SIZE - 39:
                player_input[0] += 1
 
         if keys[pygame.K_z]:
             if not alreadyAnimated:
-                playerAnimations.walk("b")
+                playerAnimations.walk("b", player.velocity)
                 alreadyAnimated = True
             if player.y-player.speed > 23:
                 player_input[1] -= 1
 
         if keys[pygame.K_s]:
             if not alreadyAnimated:
-                playerAnimations.walk("f")
+                playerAnimations.walk("f", player.velocity)
                 alreadyAnimated = True
             if player.y+player.speed < MAP_SIZE - 22:
                 player_input[1] += 1
