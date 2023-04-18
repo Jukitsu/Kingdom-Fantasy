@@ -1,0 +1,1 @@
+This is the directory where the save file will be stored. Do not delete.
