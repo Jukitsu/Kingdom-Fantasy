@@ -9,8 +9,9 @@ def set_interval(func, sec):
    t.start()
    return t
 
-class PlayerAnimations:
 
+
+class PlayerAnimations:
     def __init__(self, player):
         self.STATUS = {
             "idle": 0,
@@ -42,8 +43,8 @@ class PlayerAnimations:
 
     def idle(self):
         self.changeTicks("idle")
-        self.animationPhases("./resources/animations/player/idle/idle0", [8, 10, 18, 19])
+        self.animationPhases("./resources/animations/player/idle/idle0", [8]) #, 10, 18, 19])
 
     def walk(self, direction, velocity):
-        self.changeTicks("walk"+direction)
-        self.animationPhases("./resources/animations/player/walk/walk"+direction, [8, 16, 17] if direction == "b" or direction == "f" else [6, 12, 18, 22], velocity)
+        self.changeTicks(f"walk{direction}")
+        self.animationPhases(f"./resources/animations/player/walk/walk{direction}", [8, 12, 17], velocity)
