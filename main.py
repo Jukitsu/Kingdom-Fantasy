@@ -14,7 +14,8 @@ FRICTION = ( 16,  16,  16)
 COLORS = {
     0: (0, 0, 255), # Water
     1: (0, 255, 0), # Plains
-    2: (160, 160, 160) # Mountains
+    2: (160, 160, 160), # Mountains
+    3: (255, 255, 255) # Snowy Mountains
 }
 
 def log(*args, **kw): # Debug
@@ -29,7 +30,6 @@ class Tilemap:
     def __init__(self):
         self.map = []
         self.view_offset = [0, 0]
-        self.surface = pygame.Surface(())
 
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
@@ -45,8 +45,10 @@ class Tilemap:
                     self.map[i][j] = 0
                 elif height < 60:
                     self.map[i][j] = 1
-                else:
+                elif height < 80:
                     self.map[i][j] = 2
+                else:
+                    self.map[i][j] = 3
         log("Terrain Generated")
 
 
@@ -65,8 +67,17 @@ class FPScounter:
 
     def display(self):
         font = pygame.font.SysFont(None, 30)
-        img = font.render(f"{round(self.clock.get_fps())}, X: {self.player.x}, Y: {self.player.y}", True, (0, 0, 0))
+        img = font.render(f"{round(self.clock.get_fps())}, X: {round(self.player.x, 2)}, Y: {round(self.player.y, 2)}", True, (0, 0, 0))
         self.screen.blit(img, (2, 2))
+        
+class Entity:
+    def __init__(self, coords, screen):
+        self.x, self.y = coords
+        self.velocity = [0, 0]
+        self.accel = [0, 0]
+        self.friction = FRICTION
+        self.speed = 16
+        self.screen = screen
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, coords, screen):
@@ -113,7 +124,6 @@ class Player(pygame.sprite.Sprite):
         
         self.x += self.velocity[0] * delta_time * self.speed
         self.y += self.velocity[1] * delta_time * self.speed
-        print(self.x, self.y)
         
         self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]
         
