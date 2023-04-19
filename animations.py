@@ -21,8 +21,23 @@ class PlayerAnimations:
                 pygame.image.load("./resources/animations/player/walk/walkf0.png"),
                 pygame.image.load("./resources/animations/player/walk/walkf1.png"),
                 pygame.image.load("./resources/animations/player/walk/walkf2.png")
-            ],    
-        }
+            ],   
+            "walkb": [
+                pygame.image.load("./resources/animations/player/walk/walkb0.png"),
+                pygame.image.load("./resources/animations/player/walk/walkb1.png"),
+                pygame.image.load("./resources/animations/player/walk/walkb2.png")
+            ],
+            "walkl": [
+                pygame.image.load("./resources/animations/player/walk/walkl0.png"),
+                pygame.image.load("./resources/animations/player/walk/walkl1.png"),
+                pygame.image.load("./resources/animations/player/walk/walkl2.png")
+            ],
+            "walkr": [
+                pygame.image.load("./resources/animations/player/walk/walkr0.png"),
+                pygame.image.load("./resources/animations/player/walk/walkr1.png"),
+                pygame.image.load("./resources/animations/player/walk/walkr2.png")
+            ], 
+        }  
         self.STATUS = {
             "idle": 0,
             "walkf": 1,
@@ -47,17 +62,17 @@ class PlayerAnimations:
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
                 self.ticks[0] = 0
-                self.player.render(path + str(0) + ".png")
+                self.player.render(self.skins[path][0])
                 return 
             if self.ticks[0]//25 < duration[d]:
-                self.player.render(path + str(d) + ".png")
+                self.player.render(self.skins[path][d])
                 return
 
 
     def idle(self):
         self.changeTicks("idle")
-        self.animationPhases("./resources/animations/player/idle/idle0", [8]) #, 10, 18, 19])
+        self.animationPhases("idle", [8]) #, 10, 18, 19])
 
     def walk(self, direction, velocity):
         self.changeTicks(f"walk{direction}")
-        self.animationPhases(f"./resources/animations/player/walk/walk{direction}", [1, 3, 5], velocity)
+        self.animationPhases("walk"+direction, [1, 4, 7], velocity)

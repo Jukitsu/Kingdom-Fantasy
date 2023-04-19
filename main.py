@@ -83,7 +83,7 @@ class Entity:
 class Player(pygame.sprite.Sprite):
     def __init__(self, coords, screen):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load("./resources/animations/player/idle/idle00.png"), (128, 128))
+        self.image = pygame.image.load("./resources/animations/player/idle/idle00.png")
         self.rect = self.image.get_rect()
         self.x, self.y = coords
         self.velocity = [0, 0]
@@ -93,8 +93,8 @@ class Player(pygame.sprite.Sprite):
         self.screen = screen
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         
-    def render(self, skin="./resources/animations/player/idle/idle00.png"):
-        self.image = pygame.transform.scale(pygame.image.load(skin), (128, 128))
+    def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
+        self.image = pygame.transform.scale(skin, (128, 128))
         self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
    
     def move(self, delta_time):
@@ -104,7 +104,7 @@ class Player(pygame.sprite.Sprite):
         self.y += self.velocity[1] * delta_time * self.speed
         
         self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]
-        
+
 
 class EventHandler:
     def __init__(self, game):
@@ -120,10 +120,10 @@ class EventHandler:
 
     def movePlayer(self, player, playerAnimations):
         keys = pygame.key.get_pressed()
+        clicks = pygame.mouse.get_pressed(num_buttons=3)
         alreadyAnimated = False
         
         player_input = [0, 0]
-
         if keys[pygame.K_q]:
             playerAnimations.walk("l", player.velocity)
             alreadyAnimated = True
