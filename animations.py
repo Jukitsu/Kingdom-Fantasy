@@ -60,4 +60,4 @@ class PlayerAnimations:
 
     def walk(self, direction, velocity):
         self.changeTicks(f"walk{direction}")
-        self.animationPhases(f"./resources/animations/player/walk/walk{direction}", [8, 12, 17], velocity)
+        self.animationPhases(f"./resources/animations/player/walk/walk{direction}", [1, 3, 5], velocity)

@@ -125,6 +125,9 @@ def collide(c1, c2, velocity):
 
     return entry, (nx, ny)     
         
+
+
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, coords, screen, tilemap):
         super().__init__()
