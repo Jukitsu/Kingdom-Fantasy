@@ -40,13 +40,13 @@ class PlayerAnimations:
             "attackl": [
                 pygame.image.load("./resources/animations/player/attack/attackl0.png"),
                 pygame.image.load("./resources/animations/player/attack/attackl1.png"),
-                pygame.image.load("./resources/animations/player/attack/attackl2.png")
+                pygame.image.load("./resources/animations/player/attack/attackl2.png"),
                 pygame.image.load("./resources/animations/player/attack/attackl3.png")
             ],
             "attackr": [
                 pygame.image.load("./resources/animations/player/attack/attackr0.png"),
                 pygame.image.load("./resources/animations/player/attack/attackr1.png"),
-                pygame.image.load("./resources/animations/player/attack/attackr2.png")
+                pygame.image.load("./resources/animations/player/attack/attackr2.png"),
                 pygame.image.load("./resources/animations/player/attack/attackr3.png")
             ],
         }  
