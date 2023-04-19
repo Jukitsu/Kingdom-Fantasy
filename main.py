@@ -85,7 +85,7 @@ class Entity:
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
-        self.speed = 4
+        self.speed = 16
         self.screen = screen
         
        
@@ -147,7 +147,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
-        self.speed = 16
+        self.speed = 8
         self.screen = screen
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         
@@ -225,7 +225,6 @@ class Player(pygame.sprite.Sprite):
 class EventHandler:
     def __init__(self, game):
         self.game = game # Game pointer
-        self.cooldown = 0 # pour ralentir la vitesse du personnage, l'action d'avancer ne s'execute qu'une fois sur 2
 
     def didQuit(self):
         # Did the user click the window close button?
@@ -237,31 +236,24 @@ class EventHandler:
     def movePlayer(self, player, playerAnimations):
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
-        alreadyAnimated = False
-        keyPriority = [(pygame.K_q, "l", (0, -1)), (pygame.K_d, "r", (0, 1)), (pygame.K_z, "b", (1, -1)), (pygame.K_s, "f", (1, 1))]
+        keyPriority = [
+            (pygame.K_q, "l", (0, -1), player.x > 41),
+            (pygame.K_d, "r", (0, 1), player.x < MAP_SIZE - 40),
+            (pygame.K_z, "b", (1, -1), player.y > 24),
+            (pygame.K_s, "f", (1, 1), player.y < MAP_SIZE - 23)
+        ]
+
         player_input = [0, 0]
-        
+        alreadyAnimated = False
+
         for k in keyPriority:
             # animation de marcher du personnage 
             if keys[k[0]]:
                 if not alreadyAnimated:
                     playerAnimations.walk(k[1], player.velocity)
                     alreadyAnimated = True
-
-                # conditions pour ne pas sortir de l'écran et de la map
-                condition = False
-                match k[2][1]:
-                    case -1:
-                        if k[2][0] == 0:
-                            condition = player.x > 41
-                        else:
-                            condition = player.y > 24
-                    case 1:
-                        if k[2][0] == 0:
-                            condition = player.x < MAP_SIZE - 40
-                        else:
-                            condition = player.y < MAP_SIZE - 23
-                if condition:
+                
+                if k[3]:
                     player_input[k[2][0]] += k[2][1]
 
         player.accel[0], player.accel[1] = player_input[0], player_input[1]
