@@ -79,29 +79,7 @@ class Entity:
         self.speed = 16
         self.screen = screen
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self, coords, screen):
-        super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load("./resources/animations/player/idle/idle00.png"), (128, 128))
-        self.rect = self.image.get_rect()
-        self.x, self.y = coords
-        self.velocity = [0, 0]
-        self.speed = 7
-        self.screen = screen
-        self.collider = pygame.Rect(self.x, self.y, 16, 16) 
 
-    def render(self, skin="./resources/animations/player/idle/idle00.png"):
-        self.image = pygame.transform.scale(pygame.image.load(skin), (128, 128))
-        self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
-        
-    def move(self, delta_time):
-        self.x += self.velocity[0] * delta_time * self.speed
-        self.y += self.velocity[1] * delta_time * self.speed
-        print(self.x, self.y)
-        
-        self.velocity = [0, 0]
-        
-        
 class Player(pygame.sprite.Sprite):
     def __init__(self, coords, screen):
         super().__init__()
