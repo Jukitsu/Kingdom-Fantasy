@@ -13,6 +13,16 @@ def set_interval(func, sec):
 
 class PlayerAnimations:
     def __init__(self, player):
+        self.skins = {
+            "idle":[
+                pygame.image.load("./resources/animations/player/idle/idle00.png")
+            ],
+            "walkf": [
+                pygame.image.load("./resources/animations/player/walk/walkf0.png"),
+                pygame.image.load("./resources/animations/player/walk/walkf1.png")
+                pygame.image.load("./resources/animations/player/walk/walkf2.png")
+            ],    
+        }
         self.STATUS = {
             "idle": 0,
             "walkf": 1,
