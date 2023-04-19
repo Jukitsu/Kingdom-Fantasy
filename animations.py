@@ -19,7 +19,7 @@ class PlayerAnimations:
             ],
             "walkf": [
                 pygame.image.load("./resources/animations/player/walk/walkf0.png"),
-                pygame.image.load("./resources/animations/player/walk/walkf1.png")
+                pygame.image.load("./resources/animations/player/walk/walkf1.png"),
                 pygame.image.load("./resources/animations/player/walk/walkf2.png")
             ],    
         }
