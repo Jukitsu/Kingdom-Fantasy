@@ -171,6 +171,9 @@ class Player(pygame.sprite.Sprite):
             for i in range(x - step_x * (steps_xz + 1), cx + step_x * (steps_xz + 2), step_x):
                 for j in range(y - step_y * (steps_y + 2), cy + step_y * (steps_y + 3), step_y):
                     pos = (i, j)
+                    
+                    if i < 0 and j < 0:
+                        continue
                     tile = self.tilemap.map[i][j]
 
                     if tile < 2:
