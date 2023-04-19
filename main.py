@@ -15,9 +15,10 @@ COLORS = {
     0: (65,105,225), # Water
     1: (238, 214, 175), # Beach
     2: (34,139,34), # Plains
-    3: (34, 107, 34), # Plains higher
-    4: (139, 137, 137), # Mountains
-    5: (255, 250, 250) # Snowy Mountains,
+    3: (85, 86, 87), # rocks
+    4: (34, 107, 34), # Plains higher
+    5: (139, 137, 137), # Mountains
+    6: (255, 250, 250) # Snowy Mountains,
 
 }
 
@@ -33,13 +34,13 @@ class Tilemap:
     def __init__(self):
         self.map = []
         self.view_offset = [0, 0]
-
+    def random(self, default, structure, chance):
+        return structure if random.randint(1, chance) == chance -1 else default
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
 
         log("Generating Terrain")
-
         # Generating Terrain
         for i in range(1000):
             for j in range(1000):
@@ -49,13 +50,13 @@ class Tilemap:
                 elif height < 7:
                     self.map[i][j] = 1
                 elif height < 40:
-                    self.map[i][j] = 2
+                    self.map[i][j] = self.random(2, 3, 500)
                 elif height < 60:
-                    self.map[i][j] = 3
+                    self.map[i][j] = self.random(4, 3, 500)
                 elif height < 80:
-                    self.map[i][j] = 4
-                else:
                     self.map[i][j] = 5
+                else:
+                    self.map[i][j] = 6
                 
         log("Terrain Generated")
 
@@ -84,7 +85,7 @@ class Entity:
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
-        self.speed = 16
+        self.speed = 4
         self.screen = screen
         
        
@@ -151,7 +152,7 @@ class Player(pygame.sprite.Sprite):
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         
     def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
-        self.image = pygame.transform.scale(skin, (128*1.5, 128*1.5))
+        self.image = pygame.transform.scale(skin, (128, 128))
         self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
    
     def move(self, delta_time):
@@ -184,7 +185,7 @@ class Player(pygame.sprite.Sprite):
                         continue
                     tile = self.tilemap.map[i][j]
 
-                    if tile < 2:
+                    if tile < 5:
                         continue
                     
                     entry_time, normal = collide((self.x, self.y, self.x + 2, self.y + 2), (i, j, i+1, j+1), adjusted_velocity)
@@ -252,14 +253,14 @@ class EventHandler:
                 match k[2][1]:
                     case -1:
                         if k[2][0] == 0:
-                            condition = player.x+player.speed < MAP_SIZE - 39
+                            condition = player.x > 41
                         else:
-                            condition = player.y-player.speed > 23
+                            condition = player.y > 24
                     case 1:
                         if k[2][0] == 0:
-                            condition = player.x+player.speed < MAP_SIZE - 39
+                            condition = player.x < MAP_SIZE - 40
                         else:
-                            condition = player.y+player.speed < MAP_SIZE - 22
+                            condition = player.y < MAP_SIZE - 23
                 if condition:
                     player_input[k[2][0]] += k[2][1]
 
