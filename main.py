@@ -12,10 +12,13 @@ SCREEN_HEIGHT=720
 FRICTION = ( 16,  16,  16)
 
 COLORS = {
-    0: (0, 0, 255), # Water
-    1: (0, 255, 0), # Plains
-    2: (160, 160, 160), # Mountains
-    3: (255, 255, 255) # Snowy Mountains
+    0: (65,105,225), # Water
+    1: (238, 214, 175), # Beach
+    2: (34,139,34), # Plains
+    3: (34, 107, 34), # Plains higher
+    4: (139, 137, 137), # Mountains
+    5: (255, 250, 250) # Snowy Mountains,
+
 }
 
 def log(*args, **kw): # Debug
@@ -41,14 +44,19 @@ class Tilemap:
         for i in range(1000):
             for j in range(1000):
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
-                if height < 10:
+                if height < 5:
                     self.map[i][j] = 0
-                elif height < 60:
+                elif height < 7:
                     self.map[i][j] = 1
-                elif height < 80:
+                elif height < 40:
                     self.map[i][j] = 2
-                else:
+                elif height < 60:
                     self.map[i][j] = 3
+                elif height < 80:
+                    self.map[i][j] = 4
+                else:
+                    self.map[i][j] = 5
+                
         log("Terrain Generated")
 
 
@@ -143,7 +151,7 @@ class Player(pygame.sprite.Sprite):
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         
     def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
-        self.image = pygame.transform.scale(skin, (128, 128))
+        self.image = pygame.transform.scale(skin, (128*1.5, 128*1.5))
         self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
    
     def move(self, delta_time):
@@ -229,41 +237,36 @@ class EventHandler:
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
         alreadyAnimated = False
-        
+        keyPriority = [(pygame.K_q, "l", (0, -1)), (pygame.K_d, "r", (0, 1)), (pygame.K_z, "b", (1, -1)), (pygame.K_s, "f", (1, 1))]
         player_input = [0, 0]
-        if keys[pygame.K_q]:
-            playerAnimations.walk("l", player.velocity)
-            alreadyAnimated = True
-            
-            if player.x-player.speed > 40: 
-                player_input[0] -= 1
-                
-        if keys[pygame.K_d]:
-            if not alreadyAnimated:
-                playerAnimations.walk("r", player.velocity)
-                alreadyAnimated = True
-            if player.x+player.speed < MAP_SIZE - 39:
-               player_input[0] += 1
-
-        if keys[pygame.K_z]:
-            if not alreadyAnimated:
-                playerAnimations.walk("b", player.velocity)
-                alreadyAnimated = True
-            if player.y-player.speed > 23:
-                player_input[1] -= 1
-
-        if keys[pygame.K_s]:
-            if not alreadyAnimated:
-                playerAnimations.walk("f", player.velocity)
-                alreadyAnimated = True
-            if player.y+player.speed < MAP_SIZE - 22:
-                player_input[1] += 1
-                
-            
-        player.accel[0], player.accel[1] = player_input[0], player_input[1]
         
-        if not (keys[pygame.K_z] or keys[pygame.K_q] or keys[pygame.K_s] or keys[pygame.K_d]):
-            playerAnimations.idle()
+        for k in keyPriority:
+            # animation de marcher du personnage 
+            if keys[k[0]]:
+                if not alreadyAnimated:
+                    playerAnimations.walk(k[1], player.velocity)
+                    alreadyAnimated = True
+
+                # conditions pour ne pas sortir de l'écran et de la map
+                condition = False
+                match k[2][1]:
+                    case -1:
+                        if k[2][0] == 0:
+                            condition = player.x+player.speed < MAP_SIZE - 39
+                        else:
+                            condition = player.y-player.speed > 23
+                    case 1:
+                        if k[2][0] == 0:
+                            condition = player.x+player.speed < MAP_SIZE - 39
+                        else:
+                            condition = player.y+player.speed < MAP_SIZE - 22
+                if condition:
+                    player_input[k[2][0]] += k[2][1]
+
+        player.accel[0], player.accel[1] = player_input[0], player_input[1]
+
+        if not alreadyAnimated:
+            playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
 
 class Game:
     def __init__(self):
@@ -292,7 +295,7 @@ class Game:
             log("Loading level")
             self.level = pickle.load(f)
             self.tilemap = self.level.tilemap
-            self.level.player_coords = (60, 40)
+            self.level.player_coords = (100, 100)
             log("Level loaded")
 
     def save(self):
