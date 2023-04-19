@@ -147,9 +147,10 @@ class Player(pygame.sprite.Sprite):
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
-        self.speed = 8
+        self.speed = 16
         self.screen = screen
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
+        self.isAttacking = [False, 0, "r"]
         
     def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
         self.image = pygame.transform.scale(skin, (128, 128))
@@ -234,8 +235,16 @@ class EventHandler:
 
 
     def movePlayer(self, player, playerAnimations):
+        if player.isAttacking[0]: 
+            if player.isAttacking[1] == 75:
+                player.isAttacking = [False, 0, "r"]
+            else:
+                player.isAttacking[1] += 1
+                playerAnimations.attack(player.isAttacking[2])
+                return
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
+        # keyboard events managment
         keyPriority = [
             (pygame.K_q, "l", (0, -1), player.x > 41),
             (pygame.K_d, "r", (0, 1), player.x < MAP_SIZE - 40),
@@ -258,6 +267,13 @@ class EventHandler:
 
         player.accel[0], player.accel[1] = player_input[0], player_input[1]
 
+        # mouse events managment
+        if clicks[0]:
+            direction = "l" if player_input[0] <= -1 else "r"
+            player.isAttacking[0], player.isAttacking[2]  = True, direction
+            playerAnimations.attack(direction)
+            alreadyAnimated = False
+            player.accel = [0, 0]
         if not alreadyAnimated:
             playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
 

@@ -55,7 +55,9 @@ class PlayerAnimations:
             "walkf": 1,
             "walkb": 2,
             "walkr": 3,
-            "walkl": 4
+            "walkl": 4,
+            "attackr": 5,
+            "attackl": 6
         }
         self.player = player
         self.ticks = [0, self.STATUS["idle"]]
@@ -88,3 +90,7 @@ class PlayerAnimations:
     def walk(self, direction, velocity):
         self.changeTicks(f"walk{direction}")
         self.animationPhases("walk"+direction, [1, 6, 11], velocity)
+
+    def attack(self, direction):
+        self.changeTicks(f"attack{direction}")
+        self.animationPhases("attack"+direction, [1, 2, 3, 4])
