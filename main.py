@@ -1,8 +1,7 @@
 import pygame, random, time, threading
 from animations import PlayerAnimations
 from perlin_noise import PerlinNoise
-import pathlib
-import pickle
+import pathlib, pickle, cv2
 
 StartTime=time.time()
 MAP_SIZE = 6400
@@ -66,7 +65,7 @@ class Tilemap:
         for x in range(round(player.x - 44), round(player.x + 44)):
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
-                pygame.draw.rect(surface, COLORS[tile] if x != round(player.x) or y != round(player.y) else (255, 0, 0), pygame.Rect(x * 16 - round(player.x * 16) + SCREEN_WIDTH // 2, y * 16 - round(player.y * 16) + SCREEN_HEIGHT // 2, 16, 16))
+                pygame.draw.rect(surface, COLORS[tile] if x != round(player.x) or y != round(player.y) else (255, 0, 0), pygame.Rect(x * 16 - round(player.x * 16) + SCREEN_WIDTH // 2, y * 16 - round(player.y * 16) + SCREEN_HEIGHT // 2, 32, 32))
 
 class FPScounter:
     def __init__(self, clock, screen, player):
@@ -151,10 +150,11 @@ class Player(pygame.sprite.Sprite):
         self.screen = screen
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         self.isAttacking = [False, 0, "r"]
+        self.size = 128* 1.25
         
     def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
-        self.image = pygame.transform.scale(skin, (128, 128))
-        self.screen.blit(self.image, (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+        self.image = pygame.transform.scale(skin, (self.size, self.size))
+        self.screen.blit(self.image, (SCREEN_WIDTH//2 - (self.size//2), SCREEN_HEIGHT//2 - (self.size//2))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
    
     def move(self, delta_time):
         self.velocity = [v + a * f * delta_time for v, a, f in zip(self.velocity, self.accel, self.friction)]
@@ -281,22 +281,28 @@ class Game:
     def __init__(self):
         # Initialize pygame
         pygame.init()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
+        self.screen = None
         self.level = Level()
         self.tilemap = None
-        
+        self.loading = True
+        self.clock = pygame.time.Clock()
+        self.event_handler = EventHandler(self)
+
         if not pathlib.Path("save/level.dat").exists():
+            self.loadingText()
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
+            self.cinematique()
+
         else:
             self.load()
                         
-        self.clock = pygame.time.Clock()
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap)
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
-        self.event_handler = EventHandler(self)
+        self.loading = False
         self.running = True
 
     def load(self):
@@ -313,6 +319,39 @@ class Game:
             self.level.player_coords = (self.player.x, self.player.y)
             pickle.dump(self.level, f)
             log("Level saved")
+
+    def loadingText(self):
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
+        font = pygame.font.Font(None, 32)
+        text = font.render('Chargement...', True, (255, 255, 255))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+        self.screen.fill((0, 0, 0))
+        self.screen.blit(text, textRect)
+        pygame.display.flip()
+
+    def cinematique(self):
+        video = cv2.VideoCapture("./resources/video/Annim_nuages_sans_narration.mp4")
+        success, video_image = video.read()
+        fps = video.get(cv2.CAP_PROP_FPS)
+        self.screen = pygame.display.set_mode(video_image.shape[1::-1], pygame.FULLSCREEN)
+        
+        soundObj = pygame.mixer.Sound('./resources/video/piste_audio.mp3')
+        soundObj.play()
+        while self.loading:
+            self.clock.tick(fps)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.loading = False
+
+            success, video_image = video.read()
+            if success:
+                video_surf = pygame.image.frombuffer(
+                    video_image.tobytes(), video_image.shape[1::-1], "BGR")
+            else:
+                self.loading = False
+            self.screen.blit(video_surf, (0, 0))
+            pygame.display.flip()
 
     def run(self):
         # Run until the user asks to quit
