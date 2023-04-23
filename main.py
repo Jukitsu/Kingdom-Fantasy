@@ -1,7 +1,7 @@
 import pygame, random, time, threading
 from objects.animations import PlayerAnimations
 from perlin_noise import PerlinNoise
-import pathlib, pickle, cv2
+import pathlib, cv2, pickle
 
 
 from objects.player import Player
@@ -23,7 +23,17 @@ COLORS = {
     4: (34, 107, 34), # Plains higher
     5: (139, 137, 137), # Mountains
     6: (255, 250, 250), # Snowy Mountains,
-    7: "tree"
+    7: (100, 100, 100), # villages
+    8: "tree.0",
+    9: "tree.1",
+    10: "tree.2",
+    11: "tree.3",
+    12: "tree.4",
+    13: "tree.5",
+    14: "house.0",
+    15: "house.1",
+    16: "house.2",
+    17: "house.3",
 }
 
 STRUCTURES = {
@@ -34,10 +44,15 @@ STRUCTURES = {
     pygame.image.load("./resources/assets/tree3.png"),
     pygame.image.load("./resources/assets/tree4.png"),
     pygame.image.load("./resources/assets/tree5.png"),
+    ],
+    "house":[
+        pygame.image.load("./resources/assets/house0.png"),
+        pygame.image.load("./resources/assets/house1.png"),
+        pygame.image.load("./resources/assets/house2.png"),
+        pygame.image.load("./resources/assets/house3.png"),
+        pygame.image.load("./resources/assets/house4.png")
     ]
 }
-def log(*args, **kw): # Debug
-    print(*args, **kw)
 
 class Level:
     def __init__(self):
@@ -50,41 +65,75 @@ class Tilemap:
         self.view_offset = [0, 0]
     def random(self, default, structure, chance):
         return structure if random.randint(1, chance) == chance -1 else default
+    def randomStructure(self, default, StructureArray, chance):
+        for i in range(len(StructureArray)):
+            if self.random(default, StructureArray[i], chance) == StructureArray[i]:
+                return StructureArray[i]
+        return default
+    
+    def searchAround(self, coords, radius, type):
+        for i in range(coords[0] - radius, coords[0] + radius):
+            for j in range(coords[1] - radius, coords[1] + radius):
+                if self.map[i][j] == type:
+                    log(True)
+                    return True 
+        return False
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
-        self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
+        self.map = [[0 for j in range(MAP_SIZE//4)] for i in range(MAP_SIZE//4)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
 
         log("Generating Terrain")
         # Generating Terrain
-        for i in range(1000):
-            for j in range(1000):
+        for i in range(500):
+            for j in range(500):
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
-                if height < 5:
-                    self.map[i][j] = 0
-                elif height < 7:
-                    self.map[i][j] = 1
-                elif height < 40:
-                    self.map[i][j] = 3 if self.random(2, 3, 500) == 3 else self.random(2, 7, 500) if 20 < height < 40 else 2
-                elif height < 60:
-                    self.map[i][j] = 3 if self.random(4, 3, 500) == 3 else self.random(4, 7, 500)
-                elif height < 80:
-                    self.map[i][j] = 5
+
+                if  10 < height < 50 and self.random(1, 2, 5) == 2 and self.searchAround((i,j), 1, 7):
+                    self.map[i][j] = self.randomStructure(7, [14, 15, 16, 17], 500)
                 else:
-                    self.map[i][j] = 6
+                
+                    if height < 5:
+                        self.map[i][j] = 0
+                    elif height < 7:
+                        self.map[i][j] = 1
+                    elif height < 40:
+                        if 20 < height < 25:
+                            self.map[i][j] = self.randomStructure(2, [ 8, 9, 10, 11, 12], 1000) if self.random(2, 7, 1000) == 2 else 7
+                        else:
+                            self.map[i][j] = self.random(2, 3, 400)
+
+                    elif height < 60:
+                        if 45 < height < 50:
+                            self.map[i][j] = self.randomStructure(4, [7, 8, 9, 10, 11, 12], 2500) if self.random(2, 7, 1000) == 2 else 7
+                        else:
+                            self.map[i][j] = self.random(4, 3, 100)
+
+                    elif height < 80:
+                        self.map[i][j] = 5
+                    else:
+                        self.map[i][j] = 6
 
         log("Terrain Generated")
 
 
     def render(self, surface, player):
         # 32x32
+        trees = []
+        houses = []
         for x in range(round(player.x - 44), round(player.x + 44)):
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
-                if tile < 7:
+                if tile < 8:
                     pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 16 - round(player.x * 16) + SCREEN_WIDTH // 2, y * 16 - round(player.y * 16) + SCREEN_HEIGHT // 2, 32, 32))
+                elif tile < 14:
+                    trees.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 16 - 45 - round(player.x * 16)  + (SCREEN_WIDTH // 2 ), y * 16 -64 - round(player.y * 16)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
                 else:
-                    surface.blit(pygame.transform.scale(STRUCTURES[COLORS[tile]][0], (128, 128)), (x * 16 - 80 - round(player.x * 16)  + (SCREEN_WIDTH // 2 ), y * 16 - 100 - round(player.y * 16)  + (SCREEN_HEIGHT // 2))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
-  
+                    houses.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (256, 256)), (x * 16 - 90 - round(player.x * 16)  + (SCREEN_WIDTH // 2 ), y * 16 -128 - round(player.y * 16)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+                
+        for e in trees:
+            surface.blit(e[0], e[1])
+        for e in houses:
+            surface.blit(e[0], e[1])
 class Entity:
     def __init__(self, coords, screen):
         self.x, self.y = coords
@@ -93,7 +142,10 @@ class Entity:
         self.friction = FRICTION
         self.speed = 16
         self.screen = screen
-        
+        self.TYPE = {
+            0: "mob",
+            1: "pnj"
+        }
 
 class EventHandler:
     def __init__(self, game):
@@ -165,10 +217,11 @@ class Game:
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
-            self.cinematique()
+            # self.cinematique()
 
         else:
             self.load()
+            
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -177,6 +230,7 @@ class Game:
         self.loading = False
         self.running = True
 
+    
     def load(self):
         with open("save/level.dat", "rb") as f:
             log("Loading level")

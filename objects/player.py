@@ -58,7 +58,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
-        self.speed = 16
+        self.speed = 12
         self.screen = screen
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         self.isAttacking = [False, 0, "r"]
@@ -100,7 +100,7 @@ class Player(pygame.sprite.Sprite):
                         continue
                     tile = self.tilemap.map[i][j]
 
-                    if tile < 5:
+                    if tile < 5 or tile > 7:
                         continue
                     
                     entry_time, normal = collide((self.x, self.y, self.x + 2, self.y + 2), (i, j, i+1, j+1), adjusted_velocity)
