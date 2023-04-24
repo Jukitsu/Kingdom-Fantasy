@@ -34,7 +34,8 @@ COLORS = {
     15: "house.1",
     16: "house.2",
     17: "house.3",
-    18: (100, 100, 100) # village center
+    18: "house.4",
+    19: (100, 100, 100) # village center
 }
 
 STRUCTURES = {
@@ -76,7 +77,6 @@ class Tilemap:
         for i in range(coords[0] - radius, coords[0] + radius):
             for j in range(coords[1] - radius, coords[1] + radius):
                 if self.map[i][j] in type:
-                    log(True)
                     return True 
         return False
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
@@ -85,12 +85,12 @@ class Tilemap:
 
         log("Generating Terrain")
         # Generating Terrain
-        for i in range(500):
-            for j in range(500):
+        for i in range(100):
+            for j in range(100):
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
-                if  10 < height < 50 and self.searchAround((i,j), 25, [18]):
-                    self.map[i][j] = self.randomStructure(self.random(7, 3, 3), [14, 15, 16, 17], 10 if not self.searchAround((i,j), 10, [14, 15, 16, 17]) else 1000)
+                if  10 < height < 50 and self.searchAround((i,j), 50, [19]):
+                    self.map[i][j] = self.randomStructure(self.random(7, 3, 3), [14, 15, 16, 17], 10 if not self.searchAround((i,j), 15, [14, 15, 16, 17]) else 10000)
                 else:
                 
                     if height < 5:
@@ -99,13 +99,13 @@ class Tilemap:
                         self.map[i][j] = 1
                     elif height < 40:
                         if 20 < height < 25:
-                            self.map[i][j] = self.randomStructure(2, [ 8, 9, 10, 11, 12], 1000) if self.random(2, 18, 2500) == 2 else 18
+                            self.map[i][j] = self.randomStructure(2, [ 8, 9, 10, 11, 12], 1000) if self.random(2, 19, 2500) == 2 else 19
                         else:
                             self.map[i][j] = self.random(2, 3, 400)
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(4, [7, 8, 9, 10, 11, 12], 2500) if self.random(2, 18, 2500) == 2 else 18
+                            self.map[i][j] = self.randomStructure(4, [7, 8, 9, 10, 11, 12], 2500) if self.random(2, 19, 2500) == 2 else 19
                         else:
                             self.map[i][j] = self.random(4, 3, 100)
 
@@ -123,11 +123,14 @@ class Tilemap:
         for x in range(round(player.x - 44), round(player.x + 44)):
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
-                if tile < 8 or tile == 18:
-                    pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 16 - round(player.x * 16) + SCREEN_WIDTH // 2, y * 16 - round(player.y * 16) + SCREEN_HEIGHT // 2, 32, 32))
+                if tile < 8 or tile == 19:
+                    pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
                 else:
-                    pygame.draw.rect(surface, (255, 0, 0), pygame.Rect(x * 16 - round(player.x * 16) + SCREEN_WIDTH // 2, y * 16 - round(player.y * 16) + SCREEN_HEIGHT // 2, 32, 32))
-                    entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 16 - 45 - round(player.x * 16)  + (SCREEN_WIDTH // 2 ), y * 16 -64 - round(player.y * 16)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                    if tile < 14:
+                        entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - 45 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -64 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                    else:
+                        entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (256, 256)), (x * 32 - 90 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -128 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+
         for e in entities:
             surface.blit(e[0], e[1])
 

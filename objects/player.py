@@ -58,7 +58,7 @@ class Player(pygame.sprite.Sprite):
         self.velocity = [0, 0]
         self.accel = [0, 0]
         self.friction = FRICTION
-        self.speed = 12
+        self.speed = 8
         self.screen = screen
         self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
         self.isAttacking = [False, 0, "r"]
