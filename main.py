@@ -1,7 +1,7 @@
 import pygame, random, time, threading
 from objects.animations import PlayerAnimations
 from perlin_noise import PerlinNoise
-import pathlib, cv2, pickle
+import pathlib, cv2, pickle, math
 
 
 from objects.player import Player
@@ -60,6 +60,7 @@ class Level:
     def __init__(self):
         self.tilemap = None
         self.player_coords = (0, 0)
+        self.entities = []
         
 class Tilemap:
     def __init__(self):
@@ -89,7 +90,7 @@ class Tilemap:
             for j in range(100):
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
-                if  10 < height < 50 and self.searchAround((i,j), 50, [19]):
+                if  10 < height < 50 and self.searchAround((i,j), 10, [19]):
                     self.map[i][j] = self.randomStructure(self.random(7, 3, 3), [14, 15, 16, 17], 10 if not self.searchAround((i,j), 15, [14, 15, 16, 17]) else 10000)
                 else:
                 
@@ -146,6 +147,7 @@ class Entity:
             0: "mob",
             1: "pnj"
         }
+        self.chat = ("", None)
 
 class EventHandler:
     def __init__(self, game):
@@ -156,9 +158,16 @@ class EventHandler:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.running = False
+    def dist(self, A, B):
+        return math.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)
+    def playerActions(self, player, level):
+        keys = pygame.key.get_pressed()
 
-
-    def movePlayer(self, player, playerAnimations):
+        if keys[pygame.K_e]:
+            for e in level.entities:
+                if self.dist((e.x, e.y), (player.x, player.y)) <= 20:
+                    log(True)
+    def movePlayer(self, player, playerAnimations, level):
         if player.isAttacking[0]: 
             if player.isAttacking[1] == 75:
                 player.isAttacking = [False, 0, "r"]
@@ -168,6 +177,7 @@ class EventHandler:
                 return
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
+
         # keyboard events managment
         keyPriority = [
             (pygame.K_q, "l", (0, -1), player.x > 41),
@@ -193,11 +203,16 @@ class EventHandler:
 
         # mouse events managment
         if clicks[0]:
-            direction = "l" if player_input[0] <= -1 else "r"
-            player.isAttacking[0], player.isAttacking[2]  = True, direction
-            playerAnimations.attack(direction)
-            alreadyAnimated = False
-            player.accel = [0, 0]
+            toAttack = False
+            for e in level.entities:
+                if self.dist((e.x, e.y), (player.x, player.y)) <= 5:
+                    toAttack = e
+            if toAttack:
+                direction = "l" if player_input[0] <= -1 else "r"
+                player.isAttacking[0], player.isAttacking[2]  = True, direction
+                playerAnimations.attack(direction)
+                alreadyAnimated = False
+                player.accel = [0, 0]
         if not alreadyAnimated:
             playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
 
@@ -225,6 +240,7 @@ class Game:
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.level.entities.append(Entity((40, 23), self.screen))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
@@ -236,12 +252,13 @@ class Game:
             log("Loading level")
             self.level = pickle.load(f)
             self.tilemap = self.level.tilemap
-            self.level.player_coords = (100, 100)
+            self.level.player_coords = self.level.player_coords
             log("Level loaded")
 
     def save(self):
         with open("save/level.dat", "wb") as f:
             log("Saving level")
+            self.level.entities = []
             self.level.player_coords = (self.player.x, self.player.y)
             pickle.dump(self.level, f)
             log("Level saved")
@@ -289,12 +306,12 @@ class Game:
 
             # Draw
             self.tilemap.render(self.screen, self.player)
-            self.event_handler.movePlayer(self.player, self.playerAnimations)
+            self.event_handler.playerActions(self.player,self.level)
+            self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)
 
             # fps
             self.clock.tick()
             self.fps_counter.display()
-            self.event_handler.movePlayer(self.player, self.playerAnimations)
             self.player.move(1 / (self.clock.get_fps() + 0.00000000000001))
             # Flip the display
             pygame.display.flip()
