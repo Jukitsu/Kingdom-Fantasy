@@ -100,7 +100,7 @@ class Player(pygame.sprite.Sprite):
                         continue
                     tile = self.tilemap.map[i][j]
 
-                    if tile < 5 or tile > 7:
+                    if not tile in [8, 9]:
                         continue
                     
                     entry_time, normal = collide((self.x, self.y, self.x + 2, self.y + 2), (i, j, i+1, j+1), adjusted_velocity)
