@@ -5,4 +5,7 @@ _Reste à faire:_
 - pathfinding pour les goblins
 - PvE -> dégats de zone + pas de spam
 
+
+
+Dependencies : pygame, opencv-python, perlin_noise
  
