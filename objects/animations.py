@@ -49,6 +49,18 @@ class PlayerAnimations:
                 pygame.image.load("./resources/animations/player/attack/attackr2.png"),
                 pygame.image.load("./resources/animations/player/attack/attackr3.png")
             ],
+            "attacksr": [
+                pygame.image.load("./resources/animations/player/attack/attacksr0.png"),
+                pygame.image.load("./resources/animations/player/attack/attacksr1.png"),
+                pygame.image.load("./resources/animations/player/attack/attacksr2.png"),
+                pygame.image.load("./resources/animations/player/attack/attacksr3.png")
+            ],
+            "attacksl": [
+                pygame.image.load("./resources/animations/player/attack/attacksl0.png"),
+                pygame.image.load("./resources/animations/player/attack/attacksl1.png"),
+                pygame.image.load("./resources/animations/player/attack/attacksl2.png"),
+                pygame.image.load("./resources/animations/player/attack/attacksl3.png")
+            ],
         }  
         self.STATUS = {
             "idle": 0,

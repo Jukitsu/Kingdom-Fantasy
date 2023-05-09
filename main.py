@@ -24,7 +24,7 @@ COLORS = {
     4: "grass.0", # Plain texture
     5: "grass.1", # Plain texture
     6: (85, 86, 87), # rocks
-    7: (38, 175, 21), # Plains higher
+    7: (69,193,0), # Plains higher
     8: (139, 137, 137), # Mountains
     9: (255, 250, 250), # Snowy Mountains,
     10: (100, 100, 100), # villages
@@ -39,12 +39,16 @@ COLORS = {
     19: "house.2",
     20: "house.3",
     21: "house.4",
-    22: (100, 100, 100) # village center
+    22: (100, 100, 100), # village center
+    23: "grass.2",
+    24: "grass.3",
+    25: "grass.4",
+    26: "rocks.0"
 }
 
 STRUCTURES = {
     "tree": [
-    pygame.image.load("./ressources/textures/tree0.png"),
+    pygame.image.load("./resources/textures/tree0.png"),
     pygame.image.load("./resources/textures/tree1.png"),
     pygame.image.load("./resources/textures/tree2.png"),
     pygame.image.load("./resources/textures/tree3.png"),
@@ -60,10 +64,16 @@ STRUCTURES = {
     ],
     "grass":[
         pygame.image.load("./resources/textures/grass0.png"),
-        pygame.image.load("./resources/textures/grass1.png")
+        pygame.image.load("./resources/textures/grass1.png"),
+        pygame.image.load("./resources/textures/grass2.png"),
+        pygame.image.load("./resources/textures/grass3.png"),
+        pygame.image.load("./resources/textures/grass4.png"),
     ],
     "water":[
         pygame.image.load("./resources/textures/water0.png")
+    ],
+    "rocks": [
+        pygame.image.load("./resources/textures/chemin.png")
     ]
 }
 
@@ -102,7 +112,7 @@ class Tilemap:
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
                 if  10 < height < 50 and self.searchAround((i,j), 10, [22]):
-                    self.map[i][j] = self.randomStructure(self.random(10, 6, 3), [17, 18, 19, 20, 21], 10 if not self.searchAround((i,j), 15, [17, 18, 19, 20, 21]) else 10000)
+                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [6, 26], 3), [17, 18, 19, 20, 21], 10 if not self.searchAround((i,j), 15, [17, 18, 19, 20, 21]) else 10000)
                 else:
                 
                     if height < 5:
@@ -111,15 +121,15 @@ class Tilemap:
                         self.map[i][j] = 2
                     elif height < 40:
                         if 20 < height < 25:
-                            self.map[i][j] = self.randomStructure(5, [ 11, 12, 13, 14, 15, 16], 1000) if self.random(2, 22, 2500) == 2 else 22
+                            self.map[i][j] = self.randomStructure(self.random(5, 3, 3), [ 11, 12, 13, 14, 15, 16], 1000) if self.random(2, 22, 2500) == 2 else 22
                         else:
-                            self.map[i][j] = 5
+                            self.map[i][j] = self.random(5, 3, 3)
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(4, [11, 12, 13, 14, 15, 16], 2500) if self.random(2, 22, 2500) == 2 else 22
+                            self.map[i][j] = self.randomStructure(self.randomStructure(4, [7, 23, 24, 25], 5), [11, 12, 13, 14, 15, 16], 2500) if self.random(2, 22, 2500) == 2 else 22
                         else:
-                            self.map[i][j] = 4
+                            self.map[i][j] = self.randomStructure(4, [7, 23, 24, 25], 5)
 
                     elif height < 80:
                         self.map[i][j] = 8
@@ -139,7 +149,7 @@ class Tilemap:
                 if len(COLORS[tile]) == 3:
                     pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
                 else:
-                    if tile < 6:
+                    if tile < 6 or tile > 22:
                         textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                     elif tile < 14:
                         entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - 45 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -64 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
@@ -154,10 +164,10 @@ class Tilemap:
 class ChatBox:
     def __init__(self, text):
         self.text = text
-        
     def render(self, screen):
         # chatbox
-        
+        chat = pygame.image.load("./resources/textures/parchemin.png")
+        self.screen.blit(pygame.transform.scale(chat), (0, 0))
         # text
         font = pygame.font.Font(None, 32)
         text = font.render(self.text, True, (255, 255, 255))
@@ -165,7 +175,6 @@ class ChatBox:
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
         self.screen.fill((0, 0, 0))
         self.screen.blit(text, textRect)
-        
         
         
 
@@ -186,7 +195,7 @@ class EventHandler:
         if keys[pygame.K_e]:
             for e in level.entities:
                 if self.dist((e.x, e.y), (player.x, player.y)) <= 20:
-                    log(True)
+                    ChatBox(e.chat[0]).render()
     def movePlayer(self, player, playerAnimations, level):
         if player.isAttacking[0]: 
             if player.isAttacking[1] == 75:
