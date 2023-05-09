@@ -55,7 +55,6 @@ class PlayerAnimations:
                 pygame.image.load("./resources/animations/player/attack/attacksr2.png"),
                 pygame.image.load("./resources/animations/player/attack/attacksr3.png")
             ],
-                        ],
             "attacksl": [
                 pygame.image.load("./resources/animations/player/attack/attacksl0.png"),
                 pygame.image.load("./resources/animations/player/attack/attacksl1.png"),

@@ -44,7 +44,7 @@ COLORS = {
 
 STRUCTURES = {
     "tree": [
-    pygame.image.load("./ressources/textures/tree0.png"),
+    pygame.image.load("./resources/textures/tree0.png"),
     pygame.image.load("./resources/textures/tree1.png"),
     pygame.image.load("./resources/textures/tree2.png"),
     pygame.image.load("./resources/textures/tree3.png"),
@@ -154,10 +154,9 @@ class Tilemap:
 class ChatBox:
     def __init__(self, text):
         self.text = text
-        
     def render(self, screen):
         # chatbox
-        chat = pygame.image.load("./resources/textures/chatbox.png")
+        chat = pygame.image.load("./resources/textures/parchemin.png")
         self.screen.blit(pygame.transform.scale(chat), (0, 0))
         # text
         font = pygame.font.Font(None, 32)
@@ -166,7 +165,6 @@ class ChatBox:
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
         self.screen.fill((0, 0, 0))
         self.screen.blit(text, textRect)
-        
         
         
 
@@ -187,7 +185,7 @@ class EventHandler:
         if keys[pygame.K_e]:
             for e in level.entities:
                 if self.dist((e.x, e.y), (player.x, player.y)) <= 20:
-                    log(True)
+                    ChatBox(e.chat[0]).render()
     def movePlayer(self, player, playerAnimations, level):
         if player.isAttacking[0]: 
             if player.isAttacking[1] == 75:
