@@ -5,6 +5,7 @@ import pathlib, cv2, pickle, math
 
 
 from objects.player import Player
+from objects.entity import Entity
 from objects.utils import FPScounter, log
 from objects.animations import PlayerAnimations
 
@@ -149,19 +150,7 @@ class Tilemap:
         for e in entities:
             surface.blit(e[0], e[1])
 
-class Entity:
-    def __init__(self, coords, screen):
-        self.x, self.y = coords
-        self.velocity = [0, 0]
-        self.accel = [0, 0]
-        self.friction = FRICTION
-        self.speed = 16
-        self.screen = screen
-        self.TYPE = {
-            0: "mob",
-            1: "pnj"
-        }
-        self.chat = ("", None)
+
 
 class EventHandler:
     def __init__(self, game):
@@ -254,7 +243,7 @@ class Game:
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.level.entities.append(Entity((40, 23), self.screen))
+        # self.level.entities.append(Entity((40, 23), self.screen))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
