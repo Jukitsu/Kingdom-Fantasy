@@ -43,8 +43,8 @@ COLORS = {
     23: "grass.2",
     24: "grass.3",
     25: "grass.4",
-    26: "rocks.0"
-    27: "rock.1"
+    26: "rocks.0",
+    27: "rocks.1"
 }
 
 STRUCTURES = {
@@ -75,7 +75,9 @@ STRUCTURES = {
     ],
     "rocks": [
         pygame.image.load("./resources/textures/chemin.png"),
-        pygame.image.load("./resources/textures/rock.png")
+        pygame.image.load("./resources/textures/rocks0.png"),
+        pygame.image.load("./resources/textures/rocks1.png"),
+        pygame.image.load("./resources/textures/rocks2.png")
     ]
 }
 
@@ -129,7 +131,7 @@ class Tilemap:
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(self.randomStructure(4, [7, 23, 24, 25], 5), [11, 12, 13, 14, 15, 16], 2500) if self.random(2, 22, 2500) == 2 else 22
+                            self.map[i][j] = self.randomStructure(self.randomStructure(4, [7, 23, 24, 25], 5), [11, 12, 13, 14, 15, 16, 27], 2500) if self.random(2, 22, 2500) == 2 else 22
                         else:
                             self.map[i][j] = self.randomStructure(4, [7, 23, 24, 25], 5)
 
@@ -151,9 +153,9 @@ class Tilemap:
                 if len(COLORS[tile]) == 3:
                     pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
                 else:
-                    if tile < 6 or tile > 22:
+                    if tile < 6 or (tile > 22 and tile != 27):
                         textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
-                    elif tile < 14:
+                    elif tile < 14 or tile == 27:
                         entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - 45 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -64 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                     else:
                         entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (256, 256)), (x * 32 - 90 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -128 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
