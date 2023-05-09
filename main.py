@@ -117,9 +117,9 @@ class Tilemap:
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(4, [11, 12, 13, 14, 15, 16], 2500) if self.random(2, 22, 2500) == 2 else 22
+                            self.map[i][j] = self.randomStructure(self.randomStructure(7, [4], 10), [11, 12, 13, 14, 15, 16], 2500) if self.random(2, 22, 2500) == 2 else 22
                         else:
-                            self.map[i][j] = 4
+                            self.map[i][j] = self.random(7, 4, 10)
 
                     elif height < 80:
                         self.map[i][j] = 8
