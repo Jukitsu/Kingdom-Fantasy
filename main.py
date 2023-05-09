@@ -168,7 +168,8 @@ class ChatBox:
         
     def render(self, screen):
         # chatbox
-        
+        chat = pygame.image.load("./resources/textures/chatbox.png")
+        self.screen.blit(pygame.transform.scale(chat), (0, 0))
         # text
         font = pygame.font.Font(None, 32)
         text = font.render(self.text, True, (255, 255, 255))
