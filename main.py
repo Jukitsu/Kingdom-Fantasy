@@ -43,6 +43,7 @@ COLORS = {
     23: "grass.2",
     24: "grass.3",
     25: "grass.4",
+    26: "rocks.0"
 }
 
 STRUCTURES = {
@@ -70,6 +71,9 @@ STRUCTURES = {
     ],
     "water":[
         pygame.image.load("./resources/textures/water0.png")
+    ],
+    "rocks": [
+        pygame.image.load("./resources/textures/chemin.png")
     ]
 }
 
@@ -108,7 +112,7 @@ class Tilemap:
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
                 if  10 < height < 50 and self.searchAround((i,j), 10, [22]):
-                    self.map[i][j] = self.randomStructure(self.random(10, 6, 3), [17, 18, 19, 20, 21], 10 if not self.searchAround((i,j), 15, [17, 18, 19, 20, 21]) else 10000)
+                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [6, 26], 3), [17, 18, 19, 20, 21], 10 if not self.searchAround((i,j), 15, [17, 18, 19, 20, 21]) else 10000)
                 else:
                 
                     if height < 5:
