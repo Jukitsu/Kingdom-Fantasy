@@ -43,26 +43,26 @@ COLORS = {
 
 STRUCTURES = {
     "tree": [
-    pygame.image.load("./resources/assets/tree0.png"),
-    pygame.image.load("./resources/assets/tree1.png"),
-    pygame.image.load("./resources/assets/tree2.png"),
-    pygame.image.load("./resources/assets/tree3.png"),
-    pygame.image.load("./resources/assets/tree4.png"),
-    pygame.image.load("./resources/assets/tree5.png"),
+    pygame.image.load("./ressources/textures/tree0.png"),
+    pygame.image.load("./resources/textures/tree1.png"),
+    pygame.image.load("./resources/textures/tree2.png"),
+    pygame.image.load("./resources/textures/tree3.png"),
+    pygame.image.load("./resources/textures/tree4.png"),
+    pygame.image.load("./resources/textures/tree5.png"),
     ],
     "house":[
-        pygame.image.load("./resources/assets/house0.png"),
-        pygame.image.load("./resources/assets/house1.png"),
-        pygame.image.load("./resources/assets/house2.png"),
-        pygame.image.load("./resources/assets/house3.png"),
-        pygame.image.load("./resources/assets/house4.png")
+        pygame.image.load("./resources/textures/house0.png"),
+        pygame.image.load("./resources/textures/house1.png"),
+        pygame.image.load("./resources/textures/house2.png"),
+        pygame.image.load("./resources/textures/house3.png"),
+        pygame.image.load("./resources/textures/house4.png")
     ],
     "grass":[
-        pygame.image.load("./resources/assets/grass0.png"),
-        pygame.image.load("./resources/assets/grass1.png")
+        pygame.image.load("./resources/textures/grass0.png"),
+        pygame.image.load("./resources/textures/grass1.png")
     ],
     "water":[
-        pygame.image.load("./resources/assets/water0.png")
+        pygame.image.load("./resources/textures/water0.png")
     ]
 }
 
@@ -162,7 +162,23 @@ class Entity:
             1: "pnj"
         }
         self.chat = ("", None)
-
+class ChatBox:
+    def __init__(self, text):
+        self.text = text
+        
+    def render(self, screen):
+        # chatbox
+        
+        # text
+        font = pygame.font.Font(None, 32)
+        text = font.render(self.text, True, (255, 255, 255))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+        self.screen.fill((0, 0, 0))
+        self.screen.blit(text, textRect)
+        
+        
+        
 class EventHandler:
     def __init__(self, game):
         self.game = game # Game pointer
