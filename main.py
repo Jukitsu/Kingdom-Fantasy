@@ -21,31 +21,31 @@ COLORS = {
     1: "water.0", # Water texture
     2: "beach.0", # Beach
     3: (139,195,74), # Plain
-    4: "grass.0", # Plain texture
-    5: "grass.1", # Plain texture
-    6: (85, 86, 87), # rocks
-    7: (69,193,0), # Plains higher
-    8: (139, 137, 137), # Mountains
-    9: (255, 250, 250), # Snowy Mountains,
-    10: (100, 100, 100), # villages
-    11: "tree.0",
-    12: "tree.1",
-    13: "tree.2",
-    14: "tree.3",
-    15: "tree.4",
-    16: "tree.5",
-    17: "house.0",
-    18: "house.1",
-    19: "house.2",
-    20: "house.3",
-    21: "house.4",
-    22: (100, 100, 100), # village center
-    23: "grass.2",
-    24: "grass.3",
-    25: "grass.4",
+    4: "grass.1", # Plain texture
+    5: (69,193,0), # Plains higher
+    6: "grass.0", # Plain texture
+    7: "grass.2",
+    8: "grass.3",
+    9: "grass.4",
+    10: (85, 86, 87), # rocks
+    11:(139, 137, 137), # Mountains
+    12: (255, 250, 250), # Snowy Mountains,
+    13: (100, 100, 100), # villages
+    14: (100, 100, 100), # village center
+    15: "tree.0",
+    16: "tree.1",
+    17: "tree.2",
+    18: "tree.3",
+    19: "tree.4",
+    20: "tree.5",
+    21: "house.0",
+    22: "house.1",
+    23: "house.2",
+    24: "house.3",
+    25: "house.4",
     26: "rocks.0",
     27: "rocks.1",
-    28: "rocks.2",
+    28 : "rocks.2"
 }
 
 STRUCTURES = {
@@ -118,8 +118,8 @@ class Tilemap:
             for j in range(MAP_SIZE):
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
-                if  10 < height < 50 and self.searchAround((i,j), 10, [22]):
-                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [6, 26], 3), [17, 18, 19, 20, 21], 500) 
+                if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
+                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [11,13], 3), [21,22,23,24,25],500) 
                 else:
                 
                     if height < 5:
@@ -128,20 +128,20 @@ class Tilemap:
                         self.map[i][j] = 2
                     elif height < 40:
                         if 20 < height < 25:
-                            self.map[i][j] = self.randomStructure(self.random(5, 3, 3), [ 11, 12,27, 28, 13, 14, 15], 500) if self.random(2, 22, 2500) == 2 else 22
+                            self.map[i][j] = self.randomStructure(self.random(4,3, 3), [15,28,27,16,17,18,19] , 500) if self.random(2, 14, 2500) == 2 else 14
                         else:
-                            self.map[i][j] = self.random(5, 3, 3)
+                            self.map[i][j] = self.random(4, 3, 3)
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(self.randomStructure(4, [7, 23, 24, 25], 5), [11, 12, 27, 28, 13, 14, 15], 500) if self.random(2, 22, 2500) == 2 else 22 
+                            self.map[i][j] = self.randomStructure(self.randomStructure(5, [6, 7, 8, 9], 5), [15,28,27,16,17,18,19], 500) if self.random(2, 14, 2500) == 2 else 14 
                         else:
-                            self.map[i][j] = self.randomStructure(4, [7, 23, 24, 25], 5)
+                            self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 5)
 
                     elif height < 80:
-                        self.map[i][j] = 8
+                        self.map[i][j] = 11
                     else:
-                        self.map[i][j] = 9
+                        self.map[i][j] = 12
 
         log("Terrain Generated")
 
@@ -153,25 +153,26 @@ class Tilemap:
         for x in range(round(player.x - 44), round(player.x + 44)):
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
-                if len(COLORS[tile]) == 3:
-                    pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
-                else:
-                    correction = [0, 0]
-                    name = COLORS[tile].split(".")[0]
-                    idx = int(COLORS[tile].split(".")[1])
-                    if name in ["house", "tree", "rocks"]:
-                        if name == "house":
-                            correction = [90, 128]
-                        elif name == "tree":
-                            correction = [40, 40]
-                        elif name == "rocks":
-                            if idx == 2:
-                                correction = [45, 45]
-                            elif idx == 1:
-                                correction = [45, 95]
-                        entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                if tile < 28 :
+                    if tile < 28 and len(COLORS[tile]) == 3:
+                        pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
                     else:
-                        textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                        correction = [0, 0]
+                        name = COLORS[tile].split(".")[0]
+                        idx = int(COLORS[tile].split(".")[1])
+                        if name in ["house", "tree", "rocks"]:
+                            if name == "house":
+                                correction = [90, 128]
+                            elif name == "tree":
+                                correction = [40, 40]
+                            elif name == "rocks":
+                                if idx == 2:
+                                    correction = [45, 45]
+                                elif idx == 1:
+                                    correction = [45, 95]
+                            entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                        else:
+                            textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
         for t in textures:
             surface.blit(t[0], t[1])
         for e in entities:
