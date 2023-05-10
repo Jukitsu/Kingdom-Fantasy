@@ -1,7 +1,7 @@
 import pygame, random, time, threading
 from objects.animations import PlayerAnimations
 from perlin_noise import PerlinNoise
-import pathlib, cv2, pickle, math
+import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 
 from objects.player import Player
@@ -119,7 +119,7 @@ class Tilemap:
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
                 if  10 < height < 50 and self.searchAround((i,j), 10, [22]):
-                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [6, 26], 3), [17, 18, 19, 20, 21], 10 if not self.searchAround((i,j), 15, [17, 18, 19, 20, 21]) else 10000)
+                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [6, 26], 3), [17, 18, 19, 20, 21], 500) 
                 else:
                 
                     if height < 5:
@@ -134,7 +134,7 @@ class Tilemap:
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(self.randomStructure(4, [7, 23, 24, 25], 5), [11, 12, 27, 28, 13, 14, 15], 500) if self.random(2, 22, 2500) == 2 else 22
+                            self.map[i][j] = self.randomStructure(self.randomStructure(4, [7, 23, 24, 25], 5), [11, 12, 27, 28, 13, 14, 15], 500) if self.random(2, 22, 2500) == 2 else 22 
                         else:
                             self.map[i][j] = self.randomStructure(4, [7, 23, 24, 25], 5)
 
@@ -156,10 +156,20 @@ class Tilemap:
                 if len(COLORS[tile]) == 3:
                     pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
                 else:
-                    if COLORS[tile].split(".")[0] == "house":
-                        entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (256, 256)), (x * 32 - 90 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -128 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
-                    elif COLORS[tile].split(".")[0] in ["rocks", "tree"]:
-                        entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - 45 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -64 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                    correction = [0, 0]
+                    name = COLORS[tile].split(".")[0]
+                    idx = int(COLORS[tile].split(".")[1])
+                    if name in ["house", "tree", "rocks"]:
+                        if name == "house":
+                            correction = [90, 128]
+                        elif name == "tree":
+                            correction = [40, 40]
+                        elif name == "rocks":
+                            if idx == 2:
+                                correction = [45, 45]
+                            elif idx == 1:
+                                correction = [45, 95]
+                        entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                     else:
                         textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
         for t in textures:
