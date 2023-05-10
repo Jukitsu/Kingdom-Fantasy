@@ -5,7 +5,7 @@ import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 
 from objects.player import Player
-from objects.entity import Entity
+from objects.entity import Entity, EntityType
 from objects.utils import FPScounter, log
 from objects.animations import PlayerAnimations
 
@@ -94,8 +94,10 @@ class Tilemap:
     def __init__(self):
         self.map = []
         self.view_offset = [0, 0]
+        
     def random(self, default, structure, chance):
         return structure if random.randint(1, chance) == chance else default
+    
     def randomStructure(self, default, StructureArray, chance):
         for i in range(len(StructureArray)):
             if self.random(default, StructureArray[i], chance) == StructureArray[i]:
@@ -109,6 +111,7 @@ class Tilemap:
                     if self.map[i][j] in type:
                         return True 
             return False
+
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
@@ -149,13 +152,21 @@ class Tilemap:
     def render(self, surface, player):
         # 32x32
         textures = []
-        entities = []
+        tile_entities = []
         for x in range(round(player.x - 44), round(player.x + 44)):
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
+                if len(COLORS[tile]) == 3:
+                    pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
+                else:
+                    if COLORS[tile].split(".")[0] == "house":
+                        tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (256, 256)), (x * 32 - 90 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -128 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                    elif COLORS[tile].split(".")[0] in ["rocks", "tree"]:
+                        tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - 45 - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -64 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                 if tile < 28 :
                     if tile < 28 and len(COLORS[tile]) == 3:
                         pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
+
                     else:
                         correction = [0, 0]
                         name = COLORS[tile].split(".")[0]
@@ -175,7 +186,7 @@ class Tilemap:
                             textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
         for t in textures:
             surface.blit(t[0], t[1])
-        for e in entities:
+        for e in tile_entities:
             surface.blit(e[0], e[1])
 
 
@@ -288,6 +299,10 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         # self.level.entities.append(Entity((40, 23), self.screen))
+        self.level.entities.append(Entity(self.player, EntityType.NPC,
+                                          "./resources/animations/entities/slime/slimel.png",
+                                          (0, 0),
+                                          self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
@@ -345,8 +360,14 @@ class Game:
 
     def run(self):
         # Run until the user asks to quit
-
+        frame_time = time.perf_counter()
+        time.sleep(0.01)
+        delta_time = 0
         while self.running:
+            last_time = frame_time
+            frame_time = time.perf_counter()
+            delta_time = frame_time - last_time
+            
             self.event_handler.didQuit()
             # Fill the background with white
             self.screen.fill((255, 255, 255))
@@ -359,9 +380,16 @@ class Game:
             # fps
             self.clock.tick()
             self.fps_counter.display()
-            self.player.move(1 / (self.clock.get_fps() + 0.00000000000001))
+            for e in self.level.entities:
+                e.move(delta_time)
+                e.render()
+            self.player.move(delta_time)
             # Flip the display
             pygame.display.flip()
+            
+            
+            
+            
 
         # Done! Time to quit.
         self.save()

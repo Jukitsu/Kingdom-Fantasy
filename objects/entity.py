@@ -1,9 +1,15 @@
 import pygame 
 
 import enum
-        
+import random
+
+import math
+
+def sign(x):
+    return (x > 0) - (x < 0)
+
 def collide(c1, c2, velocity):
-    # self: the dynamic collider, which moves
+    # this: the dynamic collider, which moves
     # collider: the static collider, which stays put
     
     c1x1, c1y1, c1x2, c1y2 = c1
@@ -54,35 +60,37 @@ class EntityType(enum.Enum):
     PLAYER = 2
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(self, etype, image, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT):
-        self.x, self.y = coords
-        self.velocity = [0, 0]
-        self.accel = [0, 0]
-        self.friction = FRICTION
-        self.speed = 16
-        self.screen = screen
-        self.type = etype
-        self.chat = ("", None)
+    def __init__(this, player, etype, image, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT):
+        this.x, this.y = coords
+        this.player = player
+        this.velocity = [0, 0]
+        this.accel = [0, 0]
+        this.friction = FRICTION
+        this.speed = 16
+        this.screen = screen
+        this.type = etype
+        this.chat = ("", None)
         super().__init__()
-        self.tilemap = tilemap
-        self.image = pygame.image.load(image)
-        self.rect = self.image.get_rect()
-        self.rigidBody = pygame.Rect(self.x, self.y, 16, 16)
-        self.isAttacking = [False, 0, "r"]
-        self.size = 128* 1.25
-        self.SCREEN_WIDTH = SCREEN_WIDTH
-        self.SCREEN_HEIGHT = SCREEN_HEIGHT
+        this.tilemap = tilemap
+        this.image = pygame.image.load(image)
+        this.rect = this.image.get_rect()
+        this.rigidBody = pygame.Rect(this.x, this.y, 16, 16)
+        this.isAttacking = [False, 0, "r"]
+        this.size = 128* 1.25
+        this.SCREEN_WIDTH = SCREEN_WIDTH
+        this.SCREEN_HEIGHT = SCREEN_HEIGHT
+        this.target = None
         
-    def render(self, skin):
-        self.image = pygame.transform.scale(skin, (self.size, self.size))
-        self.screen.blit(self.image, (self.SCREEN_WIDTH//2 - (self.size//2), self.SCREEN_HEIGHT//2 - (self.size//2))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
-   
-    def move(self, delta_time):
-        self.velocity = [v + a * f * delta_time for v, a, f in zip(self.velocity, self.accel, self.friction)]
-      
+    def render(this, skin=None):
+        if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
+            if skin:
+                this.image = pygame.transform.scale(skin, (this.size, this.size))
+            this.screen.blit(this.image, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
         
+    def check_collision(this, delta_time):
+        """Only use between friction modifications"""
         for _ in range(2):
-            adjusted_velocity = [v * delta_time for v in self.velocity]
+            adjusted_velocity = [v * delta_time for v in this.velocity]
             vx, vy = adjusted_velocity
 
             # find all the blocks we could potentially be colliding with
@@ -94,23 +102,23 @@ class Entity(pygame.sprite.Sprite):
             steps_xz = 1
             steps_y  = 1
 
-            x, y = int(self.x), int(self.y)
-            cx, cy = [int(x + v) for x, v in zip((self.x, self.y), adjusted_velocity)]
+            x, y = int(this.x), int(this.y)
+            cx, cy = [int(x + v) for x, v in zip((this.x, this.y), adjusted_velocity)]
 
             potential_collisions = []
 
-            for i in range(x - step_x * (steps_xz + 1), cx + step_x * (steps_xz + 2), step_x):
-                for j in range(y - step_y * (steps_y + 2), cy + step_y * (steps_y + 3), step_y):
+            for i in range(x - step_x * (steps_xz + 2), cx + step_x * (steps_xz + 2), step_x):
+                for j in range(y - step_y * (steps_y + 2), cy + step_y * (steps_y + 2), step_y):
                     pos = (i, j)
                     
                     if i < 0 and j < 0:
                         continue
-                    tile = self.tilemap.map[i][j]
+                    tile = this.tilemap.map[i][j]
 
                     if not tile in [8, 9]:
                         continue
                     
-                    entry_time, normal = collide((self.x, self.y, self.x + 2, self.y + 2), (i, j, i+1, j+1), adjusted_velocity)
+                    entry_time, normal = collide((this.x, this.y, this.x + 2, this.y + 2), (i, j, i+1, j+1), adjusted_velocity)
 
                     if normal is None:
                         continue
@@ -126,19 +134,41 @@ class Entity(pygame.sprite.Sprite):
             entry_time -= 0.001
 
             if normal[0]:
-                self.velocity[0] = 0
-                self.x += vx * entry_time
+                this.velocity[0] = 0
+                this.x += vx * entry_time
             
             if normal[1]:
-                self.velocity[1] = 0
-                self.y += vy * entry_time
-
-                        
-              
-        self.x += self.velocity[0] * delta_time * self.speed
-        self.y += self.velocity[1] * delta_time * self.speed
-
-           
+                this.velocity[1] = 0
+                this.y += vy * entry_time
+                
+        
+    
+    def idle(this, delta_time):
+        if not random.randint(0, int(3 / delta_time)) and this.target is None: # change target every 3 seconds on average
+            target_tile = [i + random.randint(-20, 20) for i in (this.x, this.y)]
+            if math.dist((this.player.x, this.player.y), (this.x, this.y)) < 60:
+                this.target = this.player
+                
+    def chase(this):
+        if this.target:
+            norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
+            this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
+   
+    def move(this, delta_time):
+        this.idle(delta_time)
+        this.chase()
+        
+        this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
+        
+        if this.x + this.velocity[0] * delta_time * this.speed < 0:
+            this.velocity[0] = 0
+        if this.y + this.velocity[1] * delta_time * this.speed < 0:
+            this.velocity[1] = 0
+            
+        #SOUTHEAST
+            
+        this.x += this.velocity[0] * delta_time * this.speed
+        this.y += this.velocity[1] * delta_time * this.speed
 
         
-        self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]
+        this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
