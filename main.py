@@ -10,7 +10,7 @@ from objects.utils import FPScounter, log
 from objects.animations import PlayerAnimations
 
 StartTime=time.time()
-MAP_SIZE = 6400
+MAP_SIZE = 1000
 SCREEN_WIDTH=1280
 SCREEN_HEIGHT=720
 
@@ -109,13 +109,13 @@ class Tilemap:
                     return True 
         return False
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
-        self.map = [[0 for j in range(MAP_SIZE//4)] for i in range(MAP_SIZE//4)] # First launch
+        self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
 
         log("Generating Terrain")
         # Generating Terrain
-        for i in range(100):
-            for j in range(100):
+        for i in range(MAP_SIZE):
+            for j in range(MAP_SIZE):
                 height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
 
                 if  10 < height < 50 and self.searchAround((i,j), 10, [22]):
