@@ -303,10 +303,7 @@ class Game:
 
         # self.level.entities.append(Entity((40, 23), self.screen))
         for i in range(20):
-            self.level.entities.append(Entity(self.player, EntityType.NPC,
-                                              "./resources/animations/entities/slime/slimel.png",
-                                              (random.randint(0, 50), random.randint(0, 50)),
-                                              self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
+            self.level.entities.append(Entity(self.player, EntityType.NPC, "./resources/animations/entities/slime/slimel.png", (random.randint(0, 50), random.randint(0, 50)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
