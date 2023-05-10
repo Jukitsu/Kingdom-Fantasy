@@ -87,7 +87,7 @@ STRUCTURES = {
 class Level:
     def __init__(self):
         self.tilemap = None
-        self.player_coords = (0, 0)
+        self.player_coords = (50, 50)
         self.entities = []
         
 class Tilemap:
@@ -267,7 +267,8 @@ class EventHandler:
                 player.accel = [0, 0]
         if not alreadyAnimated:
             playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
-
+        def entitiesActions(self):
+            
 class Game:
     def __init__(self):
         # Initialize pygame
