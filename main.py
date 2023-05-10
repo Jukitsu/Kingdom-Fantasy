@@ -88,7 +88,7 @@ STRUCTURES = {
         pygame.image.load("./resources/textures/stone_mountain2.png")
     ],
     "snow": [
-        pygame.image.load("./resources/textures/snow.png")
+        pygame.image.load("./resources/textures/snow.png"),
     ],
 }
 
@@ -130,7 +130,7 @@ class Tilemap:
             for j in range(100):
                 height = abs(noise((i / 2500, j / 2500))) * 255
                 if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
-                    self.map[i][j] = self.randomStructure(self.randomStructure(self.random(self.random(4,3, 3), 10, 5), [11,13], 3), [21,22,23,24,25],500) 
+                    self.map[i][j] = self.randomStructure(self.randomStructure(self.random(self.random(4,3, 3), 10 , 10), [11,13], 3), [21,22,23,24,25],500) 
                 else:
                 
                     if height < 5:
