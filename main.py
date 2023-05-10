@@ -45,7 +45,7 @@ COLORS = {
     25: "house.4",
     26: "rocks.0",
     27: "rocks.1",
-    28 : "rocks.2"
+    28: "rocks.2"
 }
 
 STRUCTURES = {
@@ -103,28 +103,28 @@ class Tilemap:
         return default
     
     def searchAround(self, coords, radius, type):
-        for i in range(coords[0] - radius, coords[0] + radius):
-            for j in range(coords[1] - radius, coords[1] + radius):
-                if self.map[i][j] in type:
-                    return True 
-        return False
+        if radius < coords[0] < MAP_SIZE- radius and radius < coords[1] < MAP_SIZE-radius:
+            for i in range(coords[0] - radius, coords[0] + radius):
+                for j in range(coords[1] - radius, coords[1] + radius):
+                    if self.map[i][j] in type:
+                        return True 
+            return False
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
 
         log("Generating Terrain")
         # Generating Terrain
-        for i in range(MAP_SIZE):
-            for j in range(MAP_SIZE):
-                height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
-
+        for i in range(100):
+            for j in range(100):
+                height = abs(noise((i / 2500, j / 2500))) * 255
                 if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
                     self.map[i][j] = self.randomStructure(self.randomStructure(10, [11,13], 3), [21,22,23,24,25],500) 
                 else:
                 
                     if height < 5:
-                        self.map[i][j] = 1
-                    elif height < 7:
+                        self.map[i][j] = self.random(0, 1, 2)
+                    elif height < 10:
                         self.map[i][j] = 2
                     elif height < 40:
                         if 20 < height < 25:
