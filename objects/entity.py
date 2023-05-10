@@ -1,7 +1,7 @@
 import pygame 
 
 import enum
-        
+import random
 def collide(c1, c2, velocity):
     # self: the dynamic collider, which moves
     # collider: the static collider, which stays put
@@ -76,11 +76,9 @@ class Entity(pygame.sprite.Sprite):
     def render(self, skin):
         self.image = pygame.transform.scale(skin, (self.size, self.size))
         self.screen.blit(self.image, (self.SCREEN_WIDTH//2 - (self.size//2), self.SCREEN_HEIGHT//2 - (self.size//2))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
-   
-    def move(self, delta_time):
-        self.velocity = [v + a * f * delta_time for v, a, f in zip(self.velocity, self.accel, self.friction)]
-      
         
+    def check_collision(self, delta_time):
+        """Only use between friction modifications"""
         for _ in range(2):
             adjusted_velocity = [v * delta_time for v in self.velocity]
             vx, vy = adjusted_velocity
@@ -99,8 +97,8 @@ class Entity(pygame.sprite.Sprite):
 
             potential_collisions = []
 
-            for i in range(x - step_x * (steps_xz + 1), cx + step_x * (steps_xz + 2), step_x):
-                for j in range(y - step_y * (steps_y + 2), cy + step_y * (steps_y + 3), step_y):
+            for i in range(x - step_x * (steps_xz + 2), cx + step_x * (steps_xz + 2), step_x):
+                for j in range(y - step_y * (steps_y + 2), cy + step_y * (steps_y + 2), step_y):
                     pos = (i, j)
                     
                     if i < 0 and j < 0:
@@ -132,13 +130,13 @@ class Entity(pygame.sprite.Sprite):
             if normal[1]:
                 self.velocity[1] = 0
                 self.y += vy * entry_time
-
-                        
-              
+   
+    def move(self, delta_time):
+        self.accel = [random.randint(-1, 1), random.randint(-1, 1)]
+        self.velocity = [v + a * f * delta_time for v, a, f in zip(self.velocity, self.accel, self.friction)]
+      
         self.x += self.velocity[0] * delta_time * self.speed
-        self.y += self.velocity[1] * delta_time * self.speed
-
-           
+        self.y += self.velocity[1] * delta_time * self.speed         
 
         
         self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]

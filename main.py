@@ -331,8 +331,14 @@ class Game:
 
     def run(self):
         # Run until the user asks to quit
-
+        last_time = time.perf_counter()
+        frame_time = 0
+        delta_time = 0
         while self.running:
+            last_time = frame_time
+            frame_time = time.perf_counter()
+            delta_time = frame_time - last_time
+            
             self.event_handler.didQuit()
             # Fill the background with white
             self.screen.fill((255, 255, 255))
@@ -345,9 +351,13 @@ class Game:
             # fps
             self.clock.tick()
             self.fps_counter.display()
-            self.player.move(1 / (self.clock.get_fps() + 0.00000000000001))
+            self.player.move(delta_time)
             # Flip the display
             pygame.display.flip()
+            
+            
+            
+            
 
         # Done! Time to quit.
         self.save()
