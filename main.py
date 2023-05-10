@@ -28,7 +28,7 @@ COLORS = {
     8: "grass.3",
     9: "grass.4",
     10: (85, 86, 87), # rocks
-    11:(139, 137, 137), # Mountains
+    11:"mountains.0" ,
     12: (255, 250, 250), # Snowy Mountains,
     13: (100, 100, 100), # villages
     14: (100, 100, 100), # village center
@@ -45,7 +45,9 @@ COLORS = {
     25: "house.4",
     26: "rocks.0",
     27: "rocks.1",
-    28: "rocks.2"
+    28: "rocks.2",
+    29: "mountains.1",
+    30: "mountains.2",
 }
 
 STRUCTURES = {
@@ -82,6 +84,11 @@ STRUCTURES = {
     "beach": [
         pygame.image.load("./resources/textures/sand.png")
     ],
+    "mountains": [
+        pygame.image.load("./resources/textures/stone_mountain0.png"),
+        pygame.image.load("./resources/textures/stone_mountain1.png"),
+        pygame.image.load("./resources/textures/stone_mountain2.png")
+    ]
 }
 
 class Level:
@@ -142,7 +149,7 @@ class Tilemap:
                             self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 5)
 
                     elif height < 80:
-                        self.map[i][j] = 11
+                        self.map[i][j] = self.randomStructure(11, [29,11,29,29,29,11,11,11,11,30], 5)
                     else:
                         self.map[i][j] = 12
 
@@ -175,6 +182,7 @@ class Tilemap:
                                     correction = [45, 45]
                                 elif idx == 1:
                                     correction = [45, 95]
+    
                             tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                         else:
                             textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
@@ -286,7 +294,7 @@ class Game:
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
-            self.cinematique()
+            #self.cinematique()
 
         else:
             self.load()
