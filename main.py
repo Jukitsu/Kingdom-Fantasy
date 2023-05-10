@@ -28,7 +28,7 @@ COLORS = {
     8: "grass.3",
     9: "grass.4",
     10: (85, 86, 87), # rocks
-    11:(139, 137, 137), # Mountains
+    11:"mountains.0",
     12: (255, 250, 250), # Snowy Mountains,
     13: (100, 100, 100), # villages
     14: (100, 100, 100), # village center
@@ -45,7 +45,9 @@ COLORS = {
     25: "house.4",
     26: "rocks.0",
     27: "rocks.1",
-    28: "rocks.2"
+    28: "rocks.2",
+    29: "mountains.1",
+    30: "mountains.2",
 }
 
 STRUCTURES = {
@@ -81,6 +83,11 @@ STRUCTURES = {
     ],
     "beach": [
         pygame.image.load("./resources/textures/sand.png")
+    ],
+    "mountains": [
+        pygame.image.load("./resources/textures/stone_mountain0.png"),
+        pygame.image.load("./resources/textures/stone_mountain1.png"),
+        pygame.image.load("./resources/textures/stone_mountain2.png")
     ],
 }
 
@@ -142,7 +149,7 @@ class Tilemap:
                             self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 5)
 
                     elif height < 80:
-                        self.map[i][j] = 11
+                        self.map[i][j] = self.randomStructure(11, [11, 29, 29, 29, 29, 29, 30], 5)
                     else:
                         self.map[i][j] = 12
 
