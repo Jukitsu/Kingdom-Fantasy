@@ -115,7 +115,7 @@ class Entity(pygame.sprite.Sprite):
                         continue
                     tile = this.tilemap.map[i][j]
 
-                    if not tile in [8, 9]:
+                    if not tile in [11, 12]:
                         continue
                     
                     entry_time, normal = collide((this.x, this.y, this.x + 2, this.y + 2), (i, j, i+1, j+1), adjusted_velocity)
