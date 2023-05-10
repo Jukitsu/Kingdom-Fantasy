@@ -268,7 +268,7 @@ class EventHandler:
                 player.accel = [0, 0]
         if not alreadyAnimated:
             playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
-        def entitiesActions(self):
+       
             
 class Game:
     def __init__(self):
