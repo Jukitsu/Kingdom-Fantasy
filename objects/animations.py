@@ -83,7 +83,7 @@ class PlayerAnimations:
     def animationPhases(self, path, duration, velocity=[0,0]): 
         velocityNorm = math.sqrt(velocity[0]**2 + velocity[1]**2)
         numberOfPhases = len(duration) 
-        self.ticks[0] += velocityNorm + 1 * 5
+        self.ticks[0] += velocityNorm + 1 * 3
 
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
@@ -105,7 +105,7 @@ class PlayerAnimations:
 
     def attack(self, direction):
         self.changeTicks(f"attack{direction}")
-        self.animationPhases("attack"+direction, [1, 2, 3, 4])
+        self.animationPhases("attack"+direction, [0.5, 1, 1.5, 2])
         
         
         
@@ -143,7 +143,7 @@ class EntitysAnimations:
     def animationPhases(self, path, duration, velocity=[0,0]): 
         velocityNorm = math.sqrt(velocity[0]**2 + velocity[1]**2)
         numberOfPhases = len(duration) 
-        self.ticks[0] += velocityNorm +1 *3
+        self.ticks[0] += velocityNorm +1 * 10
 
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
