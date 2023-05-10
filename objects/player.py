@@ -10,7 +10,7 @@ class Player(entity.Entity):
         super().__init__(self, entity.EntityType.PLAYER,
                          "./resources/animations/player/idle/idle00.png",
                          coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
-        self.speed = 4
+        self.speed = 8
         
     def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
         self.image = pygame.transform.scale(skin, (self.size, self.size))
@@ -27,6 +27,9 @@ class Player(entity.Entity):
         self.y += self.velocity[1] * delta_time * self.speed
 
         self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]
+        
+    def attack(self, e):
+        e.hurt(10)
 
 
   

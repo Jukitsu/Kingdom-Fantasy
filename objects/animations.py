@@ -83,7 +83,7 @@ class PlayerAnimations:
     def animationPhases(self, path, duration, velocity=[0,0]): 
         velocityNorm = math.sqrt(velocity[0]**2 + velocity[1]**2)
         numberOfPhases = len(duration) 
-        self.ticks[0] += velocityNorm + 1 *3
+        self.ticks[0] += velocityNorm + 1 * 5
 
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
