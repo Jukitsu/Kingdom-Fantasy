@@ -19,7 +19,7 @@ FRICTION = ( 16,  16,  16)
 COLORS = {
     0: (0,197,214), # Water
     1: "water.0", # Water texture
-    2: (238, 214, 175), # Beach
+    2: "beach.0", # Beach
     3: (139,195,74), # Plain
     4: "grass.0", # Plain texture
     5: "grass.1", # Plain texture
@@ -78,7 +78,10 @@ STRUCTURES = {
         pygame.image.load("./resources/textures/chemin.png"),
         pygame.image.load("./resources/textures/rocks0.png"),
         pygame.image.load("./resources/textures/rocks1.png")
-    ]
+    ],
+    "beach": [
+        pygame.image.load("./resources/textures/sand.png")
+    ],
 }
 
 class Level:
