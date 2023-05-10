@@ -5,12 +5,12 @@ import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 
 from objects.player import Player
-from objects.entity import Entity
+from objects.entity import Entity, EntityType
 from objects.utils import FPScounter, log
 from objects.animations import PlayerAnimations
 
 StartTime=time.time()
-MAP_SIZE = 6400
+MAP_SIZE = 1000
 SCREEN_WIDTH=1280
 SCREEN_HEIGHT=720
 
@@ -45,7 +45,7 @@ COLORS = {
     25: "house.4",
     26: "rocks.0",
     27: "rocks.1",
-    28 : "rocks.2"
+    28: "rocks.2"
 }
 
 STRUCTURES = {
@@ -94,8 +94,10 @@ class Tilemap:
     def __init__(self):
         self.map = []
         self.view_offset = [0, 0]
+        
     def random(self, default, structure, chance):
         return structure if random.randint(1, chance) == chance else default
+    
     def randomStructure(self, default, StructureArray, chance):
         for i in range(len(StructureArray)):
             if self.random(default, StructureArray[i], chance) == StructureArray[i]:
@@ -103,28 +105,29 @@ class Tilemap:
         return default
     
     def searchAround(self, coords, radius, type):
-        for i in range(coords[0] - radius, coords[0] + radius):
-            for j in range(coords[1] - radius, coords[1] + radius):
-                if self.map[i][j] in type:
-                    return True 
-        return False
+        if radius < coords[0] < MAP_SIZE- radius and radius < coords[1] < MAP_SIZE-radius:
+            for i in range(coords[0] - radius, coords[0] + radius):
+                for j in range(coords[1] - radius, coords[1] + radius):
+                    if self.map[i][j] in type:
+                        return True 
+            return False
+
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
-        self.map = [[0 for j in range(MAP_SIZE//4)] for i in range(MAP_SIZE//4)] # First launch
+        self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
 
         log("Generating Terrain")
         # Generating Terrain
         for i in range(100):
             for j in range(100):
-                height = abs(noise((i / MAP_SIZE, j / MAP_SIZE))) * 255
-
+                height = abs(noise((i / 2500, j / 2500))) * 255
                 if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
                     self.map[i][j] = self.randomStructure(self.randomStructure(10, [11,13], 3), [21,22,23,24,25],500) 
                 else:
                 
                     if height < 5:
-                        self.map[i][j] = 1
-                    elif height < 7:
+                        self.map[i][j] = self.random(0, 1, 2)
+                    elif height < 10:
                         self.map[i][j] = 2
                     elif height < 40:
                         if 20 < height < 25:
@@ -149,13 +152,15 @@ class Tilemap:
     def render(self, surface, player):
         # 32x32
         textures = []
-        entities = []
+        tile_entities = []
         for x in range(round(player.x - 44), round(player.x + 44)):
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
+                
                 if tile < 28 :
                     if tile < 28 and len(COLORS[tile]) == 3:
                         pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
+
                     else:
                         correction = [0, 0]
                         name = COLORS[tile].split(".")[0]
@@ -170,12 +175,12 @@ class Tilemap:
                                     correction = [45, 45]
                                 elif idx == 1:
                                     correction = [45, 95]
-                            entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                            tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                         else:
                             textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
         for t in textures:
             surface.blit(t[0], t[1])
-        for e in entities:
+        for e in tile_entities:
             surface.blit(e[0], e[1])
 
 
@@ -279,7 +284,7 @@ class Game:
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
-            # self.cinematique()
+            self.cinematique()
 
         else:
             self.load()
@@ -288,6 +293,10 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         # self.level.entities.append(Entity((40, 23), self.screen))
+        self.level.entities.append(Entity(self.player, EntityType.NPC,
+                                          "./resources/animations/entities/slime/slimel.png",
+                                          (0, 0),
+                                          self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
@@ -345,8 +354,14 @@ class Game:
 
     def run(self):
         # Run until the user asks to quit
-
+        frame_time = time.perf_counter()
+        time.sleep(0.01)
+        delta_time = 0
         while self.running:
+            last_time = frame_time
+            frame_time = time.perf_counter()
+            delta_time = frame_time - last_time
+            
             self.event_handler.didQuit()
             # Fill the background with white
             self.screen.fill((255, 255, 255))
@@ -359,9 +374,16 @@ class Game:
             # fps
             self.clock.tick()
             self.fps_counter.display()
-            self.player.move(1 / (self.clock.get_fps() + 0.00000000000001))
+            for e in self.level.entities:
+                e.move(delta_time)
+                e.render()
+            self.player.move(delta_time)
             # Flip the display
             pygame.display.flip()
+            
+            
+            
+            
 
         # Done! Time to quit.
         self.save()
