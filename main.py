@@ -47,6 +47,7 @@ COLORS = {
     27: "rocks.1",
     28: "rocks.2",
     29: "mountains.1",
+    30: (235,244,251)
 }
 
 STRUCTURES = {
@@ -152,7 +153,7 @@ class Tilemap:
                     elif height < 80:
                         self.map[i][j] = self.random(11, 29, 25)
                     else:
-                        self.map[i][j] = 12
+                        self.map[i][j] = self.random(12, 30, 2)
 
         log("Terrain Generated")
 
@@ -165,7 +166,7 @@ class Tilemap:
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
                 
-                if tile < 30:
+                if tile < 31:
                     if len(COLORS[tile]) == 3:
                         pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
 
