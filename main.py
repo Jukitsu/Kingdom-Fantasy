@@ -284,7 +284,7 @@ class Game:
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
-            # self.cinematique()
+            self.cinematique()
 
         else:
             self.load()
