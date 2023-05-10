@@ -29,7 +29,7 @@ COLORS = {
     9: "grass.4",
     10: (85, 86, 87), # rocks
     11:"mountains.0",
-    12: (255, 250, 250), # Snowy Mountains,
+    12:"snow.0",
     13: (100, 100, 100), # villages
     14: (100, 100, 100), # village center
     15: "tree.0",
@@ -88,6 +88,9 @@ STRUCTURES = {
         pygame.image.load("./resources/textures/stone_mountain0.png"),
         pygame.image.load("./resources/textures/stone_mountain1.png"),
         pygame.image.load("./resources/textures/stone_mountain2.png")
+    ],
+    "snow": [
+        pygame.image.load("./resources/textures/snow.png")
     ],
 }
 
