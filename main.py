@@ -47,7 +47,6 @@ COLORS = {
     27: "rocks.1",
     28: "rocks.2",
     29: "mountains.1",
-    30: "mountains.2",
 }
 
 STRUCTURES = {
@@ -86,7 +85,6 @@ STRUCTURES = {
     ],
     "mountains": [
         pygame.image.load("./resources/textures/stone_mountain0.png"),
-        pygame.image.load("./resources/textures/stone_mountain1.png"),
         pygame.image.load("./resources/textures/stone_mountain2.png")
     ],
     "snow": [
@@ -132,7 +130,7 @@ class Tilemap:
             for j in range(100):
                 height = abs(noise((i / 2500, j / 2500))) * 255
                 if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
-                    self.map[i][j] = self.randomStructure(self.randomStructure(10, [11,13], 3), [21,22,23,24,25],500) 
+                    self.map[i][j] = self.randomStructure(self.randomStructure(self.random(self.random(4,3, 3), 10, 5), [11,13], 3), [21,22,23,24,25],500) 
                 else:
                 
                     if height < 5:
@@ -152,7 +150,7 @@ class Tilemap:
                             self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 5)
 
                     elif height < 80:
-                        self.map[i][j] = self.randomStructure(11, [11, 29, 29, 29, 29, 29, 30], 5)
+                        self.map[i][j] = self.random(11, 29, 25)
                     else:
                         self.map[i][j] = 12
 
@@ -167,7 +165,7 @@ class Tilemap:
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
                 
-                if tile < 29 :
+                if tile < 30:
                     if len(COLORS[tile]) == 3:
                         pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
 
@@ -313,10 +311,7 @@ class Game:
 
         # self.level.entities.append(Entity((40, 23), self.screen))
         for i in range(20):
-            self.level.entities.append(Entity(self.player, EntityType.NPC,
-                                              "./resources/animations/entities/slime/slimel.png",
-                                              (random.randint(0, 50), random.randint(0, 50)),
-                                              self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
+            self.level.entities.append(Entity(self.player, EntityType.NPC, "./resources/animations/entities/slime/slimel.png", (random.randint(0, 50), random.randint(0, 50)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False

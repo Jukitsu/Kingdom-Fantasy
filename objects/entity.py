@@ -82,6 +82,7 @@ class Entity(pygame.sprite.Sprite):
         this.SCREEN_HEIGHT = SCREEN_HEIGHT
         this.target = None
         this.fleeing = False
+        this.type = type # 0 = mob and 1 = pnj
         
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
