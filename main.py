@@ -28,7 +28,7 @@ COLORS = {
     8: "grass.3",
     9: "grass.4",
     10: (85, 86, 87), # rocks
-    11:"mountains.0" ,
+    11:(139, 137, 137), # Mountains
     12: (255, 250, 250), # Snowy Mountains,
     13: (100, 100, 100), # villages
     14: (100, 100, 100), # village center
@@ -45,9 +45,7 @@ COLORS = {
     25: "house.4",
     26: "rocks.0",
     27: "rocks.1",
-    28: "rocks.2",
-    29: "mountains.1",
-    30: "mountains.2",
+    28: "rocks.2"
 }
 
 STRUCTURES = {
@@ -84,11 +82,6 @@ STRUCTURES = {
     "beach": [
         pygame.image.load("./resources/textures/sand.png")
     ],
-    "mountains": [
-        pygame.image.load("./resources/textures/stone_mountain0.png"),
-        pygame.image.load("./resources/textures/stone_mountain1.png"),
-        pygame.image.load("./resources/textures/stone_mountain2.png")
-    ]
 }
 
 class Level:
@@ -149,7 +142,7 @@ class Tilemap:
                             self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 5)
 
                     elif height < 80:
-                        self.map[i][j] = self.randomStructure(11, [29,11,29,29,29,11,11,11,11,30], 5)
+                        self.map[i][j] = 11
                     else:
                         self.map[i][j] = 12
 
@@ -164,8 +157,8 @@ class Tilemap:
             for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
                 tile = self.map[x][y]
                 
-                if tile < 28 :
-                    if tile < 28 and len(COLORS[tile]) == 3:
+                if tile < 29 :
+                    if len(COLORS[tile]) == 3:
                         pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
 
                     else:
@@ -182,7 +175,6 @@ class Tilemap:
                                     correction = [45, 45]
                                 elif idx == 1:
                                     correction = [45, 95]
-    
                             tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                         else:
                             textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
@@ -197,22 +189,25 @@ class ChatBox:
         self.text = text
     def render(self, screen):
         # chatbox
-        chat = pygame.image.load("./resources/textures/parchemin.png")
-        self.screen.blit(pygame.transform.scale(chat), (0, 0))
+        chat = pygame.transform.scale(pygame.image.load("./resources/textures/parchemin.png"), (1028, 1028))
+        chatRect = chat.get_rect()
+        chatRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+        
         # text
         font = pygame.font.Font(None, 32)
         text = font.render(self.text, True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
-        self.screen.fill((0, 0, 0))
-        self.screen.blit(text, textRect)
+        screen.blit(chat, chatRect)
+        screen.blit(text, textRect)
         
         
 
 class EventHandler:
-    def __init__(self, game):
+    def __init__(self, game, screen):
         self.game = game # Game pointer
-
+        self.animationAttackingDuration = 15
+        self.screen = screen
     def didQuit(self):
         # Did the user click the window close button?
         for event in pygame.event.get():
@@ -223,60 +218,63 @@ class EventHandler:
     def playerActions(self, player, level):
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_e]:
-            for e in level.entities:
-                if self.dist((e.x, e.y), (player.x, player.y)) <= 20:
-                    ChatBox(e.chat[0]).render()
+        
     def movePlayer(self, player, playerAnimations, level):
-        if player.isAttacking[0]: 
-            if player.isAttacking[1] == 75:
-                player.isAttacking = [False, 0, "r"]
-            else:
-                player.isAttacking[1] += 1
-                playerAnimations.attack(player.isAttacking[2])
-                return
+
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
-
-        # keyboard events managment
-        keyPriority = [
-            (pygame.K_q, "l", (0, -1), player.x > 41),
-            (pygame.K_d, "r", (0, 1), player.x < MAP_SIZE - 40),
-            (pygame.K_z, "b", (1, -1), player.y > 24),
-            (pygame.K_s, "f", (1, 1), player.y < MAP_SIZE - 23)
-        ]
-
-        player_input = [0, 0]
-        alreadyAnimated = False
-
-        for k in keyPriority:
-            # animation de marcher du personnage 
-            if keys[k[0]]:
-                if not alreadyAnimated:
-                    playerAnimations.walk(k[1], player.velocity)
-                    alreadyAnimated = True
-                
-                if k[3]:
-                    player_input[k[2][0]] += k[2][1]
-
-        player.accel[0], player.accel[1] = player_input[0], player_input[1]
-
-        # mouse events managment
-        if clicks[0]:
-            toAttack = False
+        if keys[pygame.K_e]:
             for e in level.entities:
-                if self.dist((e.x, e.y), (player.x, player.y)) <= 5:
-                    toAttack = e
-            if toAttack:
-                direction = "l" if player_input[0] <= -1 else "r"
-                player.isAttacking[0], player.isAttacking[2]  = True, direction
-                playerAnimations.attack(direction)
-                player.attack(toAttack)
-                alreadyAnimated = False
-                player.accel = [0, 0]
-        if not alreadyAnimated:
-            playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
-       
+                if self.dist((e.x, e.y), (player.x, player.y)) <= 10:
+                    ChatBox(e.chat[0]).render(self.screen)
+        else:
+            # keyboard events managment
+            keyPriority = [
+                (pygame.K_q, "l", (0, -1), player.x > 41),
+                (pygame.K_d, "r", (0, 1), player.x < MAP_SIZE - 40),
+                (pygame.K_z, "b", (1, -1), player.y > 24),
+                (pygame.K_s, "f", (1, 1), player.y < MAP_SIZE - 23)
+            ]
+
+            player_input = [0, 0]
+            alreadyAnimated = False
+
+
+            if player.isAttacking[0]: 
+                if player.isAttacking[1] == self.animationAttackingDuration:
+                    player.isAttacking = [False, 0, "r"]
+                else:
+                    player.isAttacking[1] += 1
+                    playerAnimations.attack(player.isAttacking[2])
+                    return
+            for k in keyPriority:
+                # animation de marcher du personnage 
+                if keys[k[0]]:
+                    if not alreadyAnimated:
+                        playerAnimations.walk(k[1], player.velocity)
+                        alreadyAnimated = True
+
+                    if k[3]:
+                        player_input[k[2][0]] += k[2][1]
+
+            player.accel[0], player.accel[1] = player_input[0], player_input[1]
+
+            # mouse events managment
+            if clicks[0]:
+                toAttack = False
+                for e in level.entities:
+                    if self.dist((e.x, e.y), (player.x, player.y)) <= 2:
+                        toAttack = e
+                if toAttack:
+                    direction = "l" if player_input[0] <= -1 else "r"
+                    player.isAttacking[0], player.isAttacking[2]  = True, direction
+                    playerAnimations.attack(direction)
+                    player.attack(toAttack)
+                    alreadyAnimated = False
+                    player.accel = [0, 0]
+            if not alreadyAnimated:
+                playerAnimations.idle() # si l'animation de marcher ne s'est pas déclenché, idle
+        
             
 class Game:
     def __init__(self):
@@ -287,14 +285,13 @@ class Game:
         self.tilemap = None
         self.loading = True
         self.clock = pygame.time.Clock()
-        self.event_handler = EventHandler(self)
 
         if not pathlib.Path("save/level.dat").exists():
             self.loadingText()
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
-            #self.cinematique()
+            # self.cinematique()
 
         else:
             self.load()
@@ -302,6 +299,8 @@ class Game:
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.event_handler = EventHandler(self, self.screen)
+
         # self.level.entities.append(Entity((40, 23), self.screen))
         for i in range(20):
             self.level.entities.append(Entity(self.player, EntityType.NPC,
@@ -377,18 +376,17 @@ class Game:
             # Fill the background with white
             self.screen.fill((255, 255, 255))
 
-            # Draw
             self.tilemap.render(self.screen, self.player)
-            self.event_handler.playerActions(self.player,self.level)
-            self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)
 
-            # fps
             self.clock.tick()
             self.fps_counter.display()
             for e in self.level.entities:
                 e.move(delta_time)
                 e.render()
             self.player.move(delta_time)
+            self.event_handler.playerActions(self.player,self.level)
+            self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)
+
             # Flip the display
             pygame.display.flip()
             
