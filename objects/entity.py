@@ -61,12 +61,13 @@ class EntityType(enum.Enum):
 
 class Entity(pygame.sprite.Sprite):
     def __init__(this, player, etype, image, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT):
+        this.hp = 100
         this.x, this.y = coords
         this.player = player
         this.velocity = [0, 0]
         this.accel = [0, 0]
         this.friction = FRICTION
-        this.speed = 16
+        this.speed = 6
         this.screen = screen
         this.type = etype
         this.chat = ("", None)
@@ -80,6 +81,7 @@ class Entity(pygame.sprite.Sprite):
         this.SCREEN_WIDTH = SCREEN_WIDTH
         this.SCREEN_HEIGHT = SCREEN_HEIGHT
         this.target = None
+        this.fleeing = False
         
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
@@ -141,14 +143,23 @@ class Entity(pygame.sprite.Sprite):
                 this.velocity[1] = 0
                 this.y += vy * entry_time
                 
-        
+    def hurt(this, damage):
+        this.hp -= damage
+        this.flee()
     
     def idle(this, delta_time):
         if not random.randint(0, int(3 / delta_time)) and this.target is None: # change target every 3 seconds on average
+            this.fleeing = False 
             target_tile = [i + random.randint(-20, 20) for i in (this.x, this.y)]
-            if math.dist((this.player.x, this.player.y), (this.x, this.y)) < 60:
+            if math.dist((this.player.x, this.player.y), (this.x, this.y)) < 10:
                 this.target = this.player
-                
+            norm = math.sqrt((target_tile[0] - this.x) ** 2 + (target_tile[1] - this.y) ** 2)
+            this.accel = [(target_tile[0] - this.x) / norm, (target_tile[1] - this.y) / norm]
+    def flee(this):
+        this.accel = [-a for a in this.accel]
+        this.fleeing = True
+        this.target = None
+        
     def chase(this):
         if this.target:
             norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)

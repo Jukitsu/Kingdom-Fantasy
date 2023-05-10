@@ -263,6 +263,7 @@ class EventHandler:
                 direction = "l" if player_input[0] <= -1 else "r"
                 player.isAttacking[0], player.isAttacking[2]  = True, direction
                 playerAnimations.attack(direction)
+                player.attack(toAttack)
                 alreadyAnimated = False
                 player.accel = [0, 0]
         if not alreadyAnimated:
@@ -293,10 +294,11 @@ class Game:
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
         # self.level.entities.append(Entity((40, 23), self.screen))
-        self.level.entities.append(Entity(self.player, EntityType.NPC,
-                                          "./resources/animations/entities/slime/slimel.png",
-                                          (0, 0),
-                                          self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
+        for i in range(20):
+            self.level.entities.append(Entity(self.player, EntityType.NPC,
+                                              "./resources/animations/entities/slime/slimel.png",
+                                              (random.randint(0, 50), random.randint(0, 50)),
+                                              self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
