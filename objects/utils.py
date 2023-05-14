@@ -15,11 +15,10 @@ class FPScounter:
         self.screen.blit(img, (2, 2))
 
 class Compass:
-    def __init__(self, objPos, polePos):
-        self.objPos = objPos
+    def __init__(self, polePos):
         self.polePos = polePos
 
-    def render(self, screen):
+    def render(self, screen, objPos):
         direction = (self.polePos[0] - objPos[0], self.polePos[1] - objPos[1])
-
-        pygame.draw.line(screen, BLACK, (self.objPos[0], objPos[1]), (objPos[0] + direction[0], objPos[1] + direction[1]))
+        print(direction)
+        pygame.draw.line(screen, (0, 0, 0), (objPos[0], objPos[1]), (objPos[0] + direction[0], objPos[1] + direction[1]))
