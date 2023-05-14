@@ -154,7 +154,7 @@ class Entity(pygame.sprite.Sprite):
             target_tile = [i + random.randint(-20, 20) for i in (this.x, this.y)]
             if math.dist((this.player.x, this.player.y), (this.x, this.y)) < 10:
                 this.target = this.player
-            norm = math.sqrt((target_tile[0] - this.x) ** 2 + (target_tile[1] - this.y) ** 2)
+            norm = 0.0000001 if math.sqrt((target_tile[0] - this.x) ** 2 + (target_tile[1] - this.y) ** 2) == 0 else math.sqrt((target_tile[0] - this.x) ** 2 + (target_tile[1] - this.y) ** 2)
             this.accel = [(target_tile[0] - this.x) / norm, (target_tile[1] - this.y) / norm]
     def flee(this):
         this.accel = [-a for a in this.accel]

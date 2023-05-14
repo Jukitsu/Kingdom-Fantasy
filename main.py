@@ -6,7 +6,7 @@ import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 from objects.player import Player
 from objects.entity import Entity, EntityType
-from objects.utils import FPScounter, log
+from objects.utils import FPScounter, log, Compass
 from objects.animations import PlayerAnimations
 
 StartTime=time.time()
@@ -127,8 +127,8 @@ class Tilemap:
 
         log("Generating Terrain")
         # Generating Terrain
-        for i in range(100):
-            for j in range(100):
+        for i in range(500):
+            for j in range(500):
                 height = abs(noise((i / 2500, j / 2500))) * 255
                 if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
                     self.map[i][j] = self.randomStructure(self.randomStructure(self.random(self.random(4,3, 3), 10 , 10), [11,13], 3), [21,22,23,24,25],500) 
@@ -140,15 +140,15 @@ class Tilemap:
                         self.map[i][j] = 2
                     elif height < 40:
                         if 20 < height < 25:
-                            self.map[i][j] = self.randomStructure(self.random(4,3, 3), [15,28,27,16,17,18,19] , 500) if self.random(2, 14, 2500) == 2 else 14
+                            self.map[i][j] = self.randomStructure(self.random(4,3, 3), [15,28,27,16,17,18,19] , 500) # if self.random(2, 14, 2500) == 2 else 14 villages désactivés
                         else:
-                            self.map[i][j] = self.random(4, 3, 3)
+                            self.map[i][j] = self.random(3, 4, 4)
 
                     elif height < 60:
                         if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(self.randomStructure(5, [6, 7, 8, 9], 5), [15,28,27,16,17,18,19], 500) if self.random(2, 14, 2500) == 2 else 14 
+                            self.map[i][j] = self.randomStructure(self.randomStructure(5, [6, 7, 8, 9], 5), [15,28,27,16,17,18,19], 500) # if self.random(2, 14, 2500) == 2 else 14 villages désactivés
                         else:
-                            self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 5)
+                            self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 15)
 
                     elif height < 80:
                         self.map[i][j] = self.random(11, 29, 25)
@@ -168,7 +168,7 @@ class Tilemap:
                 
                 if tile < 31:
                     if len(COLORS[tile]) == 3:
-                        pygame.draw.rect(surface, COLORS[tile] if (x != round(player.x) or y != round(player.y)) else (255, 0, 0), pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
+                        pygame.draw.rect(surface, COLORS[tile] , pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
 
                     else:
                         correction = [0, 0]
