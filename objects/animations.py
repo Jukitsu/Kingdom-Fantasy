@@ -116,7 +116,6 @@ class EntitiesAnimations:
                 "spawn": [
                     pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
                     pygame.image.load("./resources/animations/entities/slime/slimer.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimer.png")
 
                 ],
                 "walkr": [
@@ -139,7 +138,6 @@ class EntitiesAnimations:
                 ],
                 "death": [
                     pygame.image.load("./resources/animations/entities/slime/slimer.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
                     pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
 
                 ]
@@ -174,7 +172,7 @@ class EntitiesAnimations:
     def animationPhases(self, path, duration, velocity=[0,0]): 
         velocityNorm = math.sqrt(velocity[0]**2 + velocity[1]**2)
         numberOfPhases = len(duration) 
-        self.ticks[0] += velocityNorm +1 * 10
+        self.ticks[0] += velocityNorm + 1 * 10
 
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
@@ -188,7 +186,7 @@ class EntitiesAnimations:
 
     def spawn(self):
         self.changeTicks("spawn")
-        self.animationPhases("spawn", [1, 20, 30])
+        self.animationPhases("spawn", [10, 20])
 
     def walk(self, direction, velocity):
         self.changeTicks(f"walk{direction}")
@@ -200,6 +198,6 @@ class EntitiesAnimations:
 
     def death(self):
         self.changeTicks("death")
-        self.animationPhases("death", [1, 5, 8])
+        self.animationPhases("death", [1000, 2000])
 
 

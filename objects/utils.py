@@ -1,5 +1,5 @@
 import pygame, math
-
+from constants import SCREEN_WIDTH, SCREEN_HEIGHT
 def log(*args, **kw): # Debug
     print(*args, **kw)
 
@@ -41,3 +41,19 @@ class Compass:
         self.screen.blit(pygame.transform.scale(pygame.image.load('./resources/textures/compass.png'), (128, 128)), (-0.5, 5))
         # indicator
         indicator = self.screen.blit(rotated_image, rotated_rect)
+class Counter:
+
+    def render(self, screen, level):
+
+        # text
+        font = pygame.font.Font(None, 32)
+        text = font.render(f"Tués: {level.counter}", True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH - 50, 10)
+        screen.blit(text, textRect)
+
+        text = font.render(f"Vies: {level.hp}", True, (0, 0, 0))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH - 50, 30)
+        screen.blit(text, textRect)
+        

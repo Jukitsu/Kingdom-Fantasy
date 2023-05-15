@@ -90,9 +90,18 @@ class Entity(pygame.sprite.Sprite):
         this.cooldownSpawn = 0
         this.EntitiesAnimations = EntitiesAnimations(this.player, this)
         this.isAttacked = True
+        this.cooldownAttack = 0
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
             if skin:
+                if this.hp == 1:
+                    rayon = 5  # Rayon du cercle
+                    cercle_surface = pygame.Surface((rayon * 2, rayon * 2), pygame.SRCALPHA)
+                    couleur_cercle = (255, 0, 0)  # Exemple : Rouge (RVB)
+                    centre_cercle = (rayon, rayon)  # Centre du cercle
+                    pygame.draw.circle(cercle_surface, couleur_cercle, centre_cercle, rayon)
+
+                    skin.blit(cercle_surface, (10, 10))
                 this.screen.blit(pygame.transform.scale(skin, (this.size, this.size)), (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
 
 
@@ -154,7 +163,9 @@ class Entity(pygame.sprite.Sprite):
         this.hp -= damage
         if this.hp <= 0:
             this.EntitiesAnimations.death()
-    
+    def attackPlayer(this):
+        this.player.hurt(1)
+
     def chase(this):
         norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
         this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
@@ -167,35 +178,41 @@ class Entity(pygame.sprite.Sprite):
             if this.hp > 0 and this.cooldownDeath < 20:
                 if this.cooldownDeath > 0:
                     this.cooldownDeath+= 1
-                if dist((this.x, this.y), (player.x, player.y)) <= 10:
-                    if not this.discovered:
-                        this.cooldownSpawn = 1
-                        this.discovered = True
-                        this.EntitiesAnimations.spawn()
-                if this.discovered:
-                    if this.cooldownSpawn > 0 and this.cooldownSpawn < 50:
-                        this.cooldownSpawn += 1
-                        this.EntitiesAnimations.spawn()
+                    this.EntitiesAnimations.death()
+                else:
+                    if dist((this.x, this.y), (player.x, player.y)) <= 10:
+                        if not this.discovered:
+                            this.cooldownSpawn = 1
+                            this.discovered = True
+                            this.EntitiesAnimations.spawn()
+                    if this.discovered:
+                        if this.cooldownSpawn > 0 and this.cooldownSpawn < 50:
+                            this.cooldownSpawn += 1
+                            this.EntitiesAnimations.spawn()
 
-                    else:
-                        this.cooldownSpawn = 0
-
-                        if dist((this.x, this.y), (player.x, player.y)) <= 3:
-                            this.EntitiesAnimations.attack("l" if this.velocity[0] < 0 else "r")
                         else:
-                            this.chase()
-                            this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
+                            this.cooldownSpawn = 0
 
-                            if this.x + this.velocity[0] * delta_time * this.speed < 0:
-                                this.velocity[0] = 0
-                            if this.y + this.velocity[1] * delta_time * this.speed < 0:
-                                this.velocity[1] = 0
+                            if dist((this.x, this.y), (player.x, player.y)) <= 3:
+                                this.EntitiesAnimations.attack("l" if this.velocity[0] < 0 else "r")
+                                this.cooldownAttack += 1
+                                if this.cooldownAttack > 30:
+                                    this.attackPlayer()
+                                    this.cooldownAttack = 0
+                            else:
+                                this.chase()
+                                this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
 
-                            #SOUTHEAST
+                                if this.x + this.velocity[0] * delta_time * this.speed < 0:
+                                    this.velocity[0] = 0
+                                if this.y + this.velocity[1] * delta_time * this.speed < 0:
+                                    this.velocity[1] = 0
 
-                            this.x += this.velocity[0] * delta_time * this.speed
-                            this.y += this.velocity[1] * delta_time * this.speed
+                                #SOUTHEAST
+
+                                this.x += this.velocity[0] * delta_time * this.speed
+                                this.y += this.velocity[1] * delta_time * this.speed
 
 
-                            this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
+                                this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
 

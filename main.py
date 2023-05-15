@@ -5,7 +5,7 @@ import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 from objects.player import Player
 from objects.entity import Entity, EntityType
-from objects.utils import FPScounter, log, Compass
+from objects.utils import FPScounter, log, Compass, Counter
 from objects.animations import PlayerAnimations
 
 from constants import MAP_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FRICTION, STRUCTURES, COLORS, PNJ, ENDGAME_COORDINATES, COMPASS_POSITION
@@ -15,9 +15,10 @@ StartTime=time.time()
 class Level:
     def __init__(self):
         self.tilemap = None
-        self.player_coords = (100, 97)
+        self.player_coords = (97, 100)
         self.entities = []
-        
+        self.counter = 0
+        self.hp = 10
 class Tilemap:
     def __init__(self):
         self.map = []
@@ -244,14 +245,14 @@ class Game:
             self.tilemap = Tilemap()
             self.tilemap.generateMap()
             self.level.tilemap = self.tilemap
-            # self.cinematique()
+            self.cinematique()
 
         else:
             self.load()
             
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
-        self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
+        self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, self.level)
         self.event_handler = EventHandler(self, self.screen)
 
         # self.level.entities.append(Entity((40, 23), self.screen))
@@ -288,11 +289,21 @@ class Game:
         self.screen.blit(text, textRect)
         pygame.display.flip()
 
+    def endText(self):
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
+        font = pygame.font.Font(None, 32)
+        text = font.render('THE END', True, (255, 255, 255))
+        textRect = text.get_rect()
+        textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+        self.screen.fill((0, 0, 0))
+        self.screen.blit(text, textRect)
+        pygame.display.flip()
+
     def cinematique(self):
         video = cv2.VideoCapture("./resources/video/Annim_nuages_sans_narration.mp4")
         success, video_image = video.read()
         fps = video.get(cv2.CAP_PROP_FPS)
-        self.screen = pygame.display.set_mode(video_image.shape[1::-1], 0)
+        self.screen = pygame.display.set_mode(video_image.shape[1::-1], pygame.FULLSCREEN)
         
         soundObj = pygame.mixer.Sound('./resources/video/piste_audio.mp3')
         soundObj.play()
@@ -311,17 +322,19 @@ class Game:
             self.screen.blit(video_surf, (0, 0))
             pygame.display.flip()
     def loadPNJ(self):
-        for i in range(200):
+        for i in range(500):
             self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""]))
         for e in PNJ:
             self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"]))
-
+    
     def run(self):
         # Run until the user asks to quit
         frame_time = time.perf_counter()
         time.sleep(0.01)
         delta_time = 0
         while self.running:
+            if self.level.hp <= 0:
+                self.running = False
             last_time = frame_time
             frame_time = time.perf_counter()
             delta_time = frame_time - last_time
@@ -331,7 +344,7 @@ class Game:
             self.screen.fill((255, 255, 255))
 
             self.tilemap.render(self.screen, self.player)
-
+            Counter().render(self.screen, self.level)
             self.clock.tick()
             self.fps_counter.display()
             for e in self.level.entities:
@@ -348,6 +361,8 @@ class Game:
             
 
         # Done! Time to quit.
+        self.endText()
+        time.sleep(5)
         self.save()
         pygame.quit()
 
