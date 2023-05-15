@@ -9,7 +9,7 @@ from objects.entity import Entity, EntityType
 from objects.utils import FPScounter, log, Compass
 from objects.animations import PlayerAnimations
 
-from constants import MAP_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FRICTION, STRUCTURES, COLORS, PNJ, ENDGAME_COORDINATES
+from constants import MAP_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, FRICTION, STRUCTURES, COLORS, PNJ, ENDGAME_COORDINATES, COMPASS_POSITION
 
 StartTime=time.time()
 
@@ -237,7 +237,7 @@ class Game:
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
         self.running = True
-        self.compass = Compass(ENDGAME_COORDINATES)
+        self.compass = Compass(ENDGAME_COORDINATES, COMPASS_POSITION, self.screen)
     
     def load(self):
         with open("save/level.dat", "rb") as f:
@@ -312,7 +312,7 @@ class Game:
             self.player.move(delta_time)
             self.event_handler.playerActions(self.player,self.level)
             self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)
-            self.compass.render(self.screen, (self.player.x, self.player.y))
+            self.compass.render((self.player.x, self.player.y))
             # Flip the display
             pygame.display.flip()
             

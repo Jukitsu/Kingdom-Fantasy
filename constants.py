@@ -89,7 +89,9 @@ PNJ = [
     {
         "skin":  "./resources/animations/pnj/Mage_PNJ.png",
         "text": ["Bien le bonjour jeune aventurier!", "Pour te déplacer dans ce monde imprévisible, tu dois utiliser tes touches ZQSD.","Prends garde à toi, ce monde regorge de surprises et de pièges!",
-                 "Tu dois alors utiliser ton clic souris droit pour te défendre de tes advairsaires" "Je ne reste pas plus longtemps !" "Bon jeu à toi !"."],
+                 "Tu dois alors utiliser ton clic souris droit pour te défendre de tes advairsaires" "Je ne reste pas plus longtemps !" "Bon jeu à toi !"],
         "position": (0, 0)
     }
 ]
+
+COMPASS_POSITION = (50, 50)
