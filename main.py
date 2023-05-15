@@ -3,7 +3,6 @@ from objects.animations import PlayerAnimations
 from perlin_noise import PerlinNoise
 import pathlib, cv2, pickle, math # cv2 = opencv-python
 
-
 from objects.player import Player
 from objects.entity import Entity, EntityType
 from objects.utils import FPScounter, log, Compass
@@ -16,7 +15,7 @@ StartTime=time.time()
 class Level:
     def __init__(self):
         self.tilemap = None
-        self.player_coords = (50, 50)
+        self.player_coords = (100, 97)
         self.entities = []
         
 class Tilemap:
@@ -114,8 +113,9 @@ class Tilemap:
 
 
 class ChatBox:
-    def __init__(self, text):
+    def __init__(self, text, i):
         self.text = text
+        self.i = i
     def render(self, screen):
         # chatbox
         chat = pygame.transform.scale(pygame.image.load("./resources/textures/parchemin.png"), (1028, 1028))
@@ -124,19 +124,28 @@ class ChatBox:
         
         # text
         font = pygame.font.Font(None, 32)
-        text = font.render(self.text, True, (255, 255, 255))
+        text = font.render(self.text[self.i], True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+
+        legend = font.render("e pour fermer" if self.i+1 == len(self.text) else "e pour passer", True, (0, 0, 0))
+        legendRect = legend.get_rect()
+        legendRect.center = (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5)
+
         screen.blit(chat, chatRect)
         screen.blit(text, textRect)
-        
+        screen.blit(legend, legendRect)
+
+
         
 
 class EventHandler:
     def __init__(self, game, screen):
         self.game = game # Game pointer
-        self.animationAttackingDuration = 15
+        self.animationAttackingDuration = 5
         self.screen = screen
+        self.isChatboxDisplayed = [False, 0]
+
     def didQuit(self):
         # Did the user click the window close button?
         for event in pygame.event.get():
@@ -147,16 +156,30 @@ class EventHandler:
     def playerActions(self, player, level):
         keys = pygame.key.get_pressed()
 
+
         
     def movePlayer(self, player, playerAnimations, level):
 
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
-        if keys[pygame.K_e]:
-            for e in level.entities:
-                if self.dist((e.x, e.y), (player.x, player.y)) <= 10:
-                    ChatBox(e.chat[0]).render(self.screen)
-        else:
+
+        for e in level.entities:
+            if e.type == EntityType["NPC"] and self.dist((e.x, e.y), (player.x, player.y)) <= 5:
+                if self.isChatboxDisplayed[0]:
+                    ChatBox(e.chat[0], self.isChatboxDisplayed[1]).render(self.screen)
+
+                if keys[pygame.K_e]:
+                    if not self.isChatboxDisplayed[0]:
+                        self.isChatboxDisplayed = [True, 0]
+                        ChatBox(e.chat[0], 0).render(self.screen)
+                    else:
+                        if self.isChatboxDisplayed[1]+1 >= len(e.chat[0]):
+                            self.isChatboxDisplayed = [False, 0]
+                        else:
+                            self.isChatboxDisplayed[1] += 1
+                            ChatBox(e.chat[0], self.isChatboxDisplayed[1]).render(self.screen)
+                        
+        if not self.isChatboxDisplayed[0]:
             # keyboard events managment
             keyPriority = [
                 (pygame.K_q, "l", (0, -1), player.x > 41),
@@ -192,7 +215,8 @@ class EventHandler:
             if clicks[0]:
                 toAttack = False
                 for e in level.entities:
-                    if self.dist((e.x, e.y), (player.x, player.y)) <= 2:
+
+                    if self.dist((e.x, e.y), (player.x, player.y)) <= 5:
                         toAttack = e
                 if toAttack:
                     direction = "l" if player_input[0] <= -1 else "r"
@@ -231,8 +255,7 @@ class Game:
         self.event_handler = EventHandler(self, self.screen)
 
         # self.level.entities.append(Entity((40, 23), self.screen))
-        for i in range(20):
-            self.level.entities.append(Entity(self.player, EntityType.NPC, "./resources/animations/entities/slime/slimel.png", (random.randint(0, 50), random.randint(0, 50)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.loadPNJ()
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
@@ -287,6 +310,11 @@ class Game:
                 self.loading = False
             self.screen.blit(video_surf, (0, 0))
             pygame.display.flip()
+    def loadPNJ(self):
+        for i in range(200):
+            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""]))
+        for e in PNJ:
+            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"]))
 
     def run(self):
         # Run until the user asks to quit
@@ -307,8 +335,7 @@ class Game:
             self.clock.tick()
             self.fps_counter.display()
             for e in self.level.entities:
-                e.move(delta_time)
-                e.render()
+                e.move(delta_time, self.player, self.event_handler.dist)
             self.player.move(delta_time)
             self.event_handler.playerActions(self.player,self.level)
             self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)

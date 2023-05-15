@@ -1,4 +1,5 @@
 import pygame 
+from objects.animations import EntitiesAnimations
 
 import enum
 import random
@@ -53,15 +54,18 @@ def collide(c1, c2, velocity):
 
     return entry, (nx, ny)     
         
+EntityType = {
+    "NPC": 0,
+    "MOB": 1,
+    "PLAYER": 2,
+    "BOSS": 3
+}
 
-class EntityType(enum.Enum):
-    NPC = 0
-    MOB = 1
-    PLAYER = 2
+
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(this, player, etype, image, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT):
-        this.hp = 100
+    def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text):
+        this.hp = 10000 if skin == "tuto" else 2
         this.x, this.y = coords
         this.player = player
         this.velocity = [0, 0]
@@ -70,11 +74,10 @@ class Entity(pygame.sprite.Sprite):
         this.speed = 6
         this.screen = screen
         this.type = etype
-        this.chat = ("", None)
+        this.chat = (text, None)
         super().__init__()
         this.tilemap = tilemap
-        this.image = pygame.image.load(image)
-        this.rect = this.image.get_rect()
+        this.skin = skin
         this.rigidBody = pygame.Rect(this.x, this.y, 16, 16)
         this.isAttacking = [False, 0, "r"]
         this.size = 128* 1.25
@@ -82,14 +85,17 @@ class Entity(pygame.sprite.Sprite):
         this.SCREEN_HEIGHT = SCREEN_HEIGHT
         this.target = None
         this.fleeing = False
-        this.type = type # 0 = mob and 1 = pnj
-        
+        this.discovered = False
+        this.cooldownDeath = 0 # set on 3
+        this.cooldownSpawn = 0
+        this.EntitiesAnimations = EntitiesAnimations(this.player, this)
+        this.isAttacked = True
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
             if skin:
-                this.image = pygame.transform.scale(skin, (this.size, this.size))
-            this.screen.blit(this.image, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
-        
+                this.screen.blit(pygame.transform.scale(skin, (this.size, this.size)), (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+
+
     def check_collision(this, delta_time):
         """Only use between friction modifications"""
         for _ in range(2):
@@ -146,41 +152,50 @@ class Entity(pygame.sprite.Sprite):
                 
     def hurt(this, damage):
         this.hp -= damage
-        this.flee()
+        if this.hp <= 0:
+            this.EntitiesAnimations.death()
     
-    def idle(this, delta_time):
-        if not random.randint(0, int(3 / delta_time)) and this.target is None: # change target every 3 seconds on average
-            this.fleeing = False 
-            target_tile = [i + random.randint(-20, 20) for i in (this.x, this.y)]
-            if math.dist((this.player.x, this.player.y), (this.x, this.y)) < 10:
-                this.target = this.player
-            norm = 0.0000001 if math.sqrt((target_tile[0] - this.x) ** 2 + (target_tile[1] - this.y) ** 2) == 0 else math.sqrt((target_tile[0] - this.x) ** 2 + (target_tile[1] - this.y) ** 2)
-            this.accel = [(target_tile[0] - this.x) / norm, (target_tile[1] - this.y) / norm]
-    def flee(this):
-        this.accel = [-a for a in this.accel]
-        this.fleeing = True
-        this.target = None
-        
     def chase(this):
-        if this.target:
-            norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
-            this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
-   
-    def move(this, delta_time):
-        this.idle(delta_time)
-        this.chase()
-        
-        this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
-        
-        if this.x + this.velocity[0] * delta_time * this.speed < 0:
-            this.velocity[0] = 0
-        if this.y + this.velocity[1] * delta_time * this.speed < 0:
-            this.velocity[1] = 0
-            
-        #SOUTHEAST
-            
-        this.x += this.velocity[0] * delta_time * this.speed
-        this.y += this.velocity[1] * delta_time * this.speed
+        norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
+        this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
+        this.EntitiesAnimations.walk("l" if this.velocity[0] < 0 else "r", this.velocity)
 
-        
-        this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
+    def move(this, delta_time, player, dist):
+        if this.skin == "tuto":
+            this.EntitiesAnimations.spawn()
+        else:
+            if this.hp > 0 and this.cooldownDeath < 20:
+                if this.cooldownDeath > 0:
+                    this.cooldownDeath+= 1
+                if dist((this.x, this.y), (player.x, player.y)) <= 10:
+                    if not this.discovered:
+                        this.cooldownSpawn = 1
+                        this.discovered = True
+                        this.EntitiesAnimations.spawn()
+                if this.discovered:
+                    if this.cooldownSpawn > 0 and this.cooldownSpawn < 50:
+                        this.cooldownSpawn += 1
+                        this.EntitiesAnimations.spawn()
+
+                    else:
+                        this.cooldownSpawn = 0
+
+                        if dist((this.x, this.y), (player.x, player.y)) <= 3:
+                            this.EntitiesAnimations.attack("l" if this.velocity[0] < 0 else "r")
+                        else:
+                            this.chase()
+                            this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
+
+                            if this.x + this.velocity[0] * delta_time * this.speed < 0:
+                                this.velocity[0] = 0
+                            if this.y + this.velocity[1] * delta_time * this.speed < 0:
+                                this.velocity[1] = 0
+
+                            #SOUTHEAST
+
+                            this.x += this.velocity[0] * delta_time * this.speed
+                            this.y += this.velocity[1] * delta_time * this.speed
+
+
+                            this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
+

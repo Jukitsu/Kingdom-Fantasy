@@ -21,21 +21,23 @@ class Compass:
         self.position = position
         self.screen = screen
     def getAngleFromCoordinates(self, coords):
-        return 
+        radians = math.atan2(coords[1], coords[0])
+        angle_deg = math.degrees(radians)
+        return (-(angle_deg -270) + 360) % 360
 
     def render(self, objPos):
-        # background
-        self.screen.blit(pygame.transform.scale(pygame.image.load('./resources/textures/compass.png'), (128, 128)), (10, 10))
-        
+
         
         direction = (self.polePos[0] - objPos[0], self.polePos[1] - objPos[1]) # x, y
         rect = self.indicator.get_rect()
         rotated_image = pygame.Surface(rect.size, pygame.SRCALPHA)
-        center = rect.center
+        center = rect.center 
 
         rotated_image = pygame.transform.rotate(self.indicator, self.getAngleFromCoordinates(direction))
         rotated_rect = rotated_image.get_rect()
         rotated_rect.center = center
 
+        # background
+        self.screen.blit(pygame.transform.scale(pygame.image.load('./resources/textures/compass.png'), (128, 128)), (-0.5, 5))
+        # indicator
         indicator = self.screen.blit(rotated_image, rotated_rect)
-        pygame.draw.line(self.screen, (0, 0, 0), (objPos[0], objPos[1]), (objPos[0] + direction[0], objPos[1] + direction[1]))

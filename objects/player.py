@@ -7,9 +7,9 @@ import objects.entity as entity
 
 class Player(entity.Entity):
     def __init__(self, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT):
-        super().__init__(self, entity.EntityType.PLAYER,
-                         "./resources/animations/player/idle/idle00.png",
-                         coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT)
+        super().__init__(self, entity.EntityType["PLAYER"],
+                         "",
+                         coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""])
         self.speed = 8
         
     def render(self, skin=pygame.image.load("./resources/animations/player/idle/idle00.png")):
@@ -29,7 +29,7 @@ class Player(entity.Entity):
         self.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(self.velocity, self.friction)]
         
     def attack(self, e):
-        e.hurt(10)
+        e.hurt(1)
 
 
   

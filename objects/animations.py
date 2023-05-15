@@ -83,7 +83,7 @@ class PlayerAnimations:
     def animationPhases(self, path, duration, velocity=[0,0]): 
         velocityNorm = math.sqrt(velocity[0]**2 + velocity[1]**2)
         numberOfPhases = len(duration) 
-        self.ticks[0] += velocityNorm + 1 * 3
+        self.ticks[0] += velocityNorm + 1 * 10
 
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
@@ -109,30 +109,61 @@ class PlayerAnimations:
         
         
         
-class EntitysAnimations:
-    def __init__(self, player):
+class EntitiesAnimations:
+    def __init__(self, player, entity):
         self.skins = {
-            
-            "idle": [
-                pygame.image.load("./resources/animations/entities/sime/slimel.png"),
-                pygame.image.load("./resources/animations/entities/sime/slimer.png")
-            ],
-            "attackr":[
-                pygame.image.load("./resources/animations/entities/sime/slimeattackr0.png"),
-                pygame.image.load("./resources/animations/entities/sime/slimeattackr1.png")
-            ],
-            "attackr":[
-                pygame.image.load("./resources/animations/entities/sime/slimeattackl0.png"),
-                pygame.image.load("./resources/animations/entities/sime/slimeattackl1.png")
-            ],
+            "slime": {
+                "spawn": [
+                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png")
+
+                ],
+                "walkr": [
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png")
+
+                ],
+                "walkl": [
+                    pygame.image.load("./resources/animations/entities/slime/slimel.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimel.png")
+
+                ],
+                "attackr": [
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackr0.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackr1.png")
+                ],
+                "attackl": [
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackl0.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackl1.png")
+                ],
+                "death": [
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
+
+                ]
+
+            },
+            "tuto": {
+                "spawn": [
+                    pygame.image.load("./resources/animations/pnj/Mage_PNJ.png"),
+                    pygame.image.load("./resources/animations/pnj/Mage_PNJ.png"),
+                    pygame.image.load("./resources/animations/pnj/Mage_PNJ.png"),
+                ]
+            }
         }  
         self.STATUS = {
-            "idle": 0,
-            "attackr": 1,
-            "attackl": 2
+            "spawn": 0,
+            "walkr": 1,
+            "walkl": 2,
+            "attackr": 3,
+            "attackl": 4,
+            "death": 5
         }
         self.player = player
-        self.ticks = [0, self.STATUS["idle"]]
+        self.entity = entity
+        self.ticks = [0, self.STATUS["spawn"]]
 
 
     def changeTicks(self, status):
@@ -148,22 +179,27 @@ class EntitysAnimations:
         for d in range(numberOfPhases):
             if d == numberOfPhases-1 and duration[d] <= self.ticks[0]//25:
                 self.ticks[0] = 0
-                self.player.render(self.skins[path][0])
+                self.entity.render(self.skins[self.entity.skin][path][0])
                 return 
             if self.ticks[0]//25 < duration[d]:
-                self.player.render(self.skins[path][d])
+                self.entity.render(self.skins[self.entity.skin][path][d])
                 return
 
 
-    def idle(self):
-        self.changeTicks("idle")
-        self.animationPhases("idle", [8]) #, 10, 18, 19])
+    def spawn(self):
+        self.changeTicks("spawn")
+        self.animationPhases("spawn", [1, 20, 30])
 
     def walk(self, direction, velocity):
         self.changeTicks(f"walk{direction}")
-        self.animationPhases("walk"+direction, [1, 6, 11], velocity)
+        self.animationPhases("walk"+direction, [1, 2], velocity)
 
     def attack(self, direction):
         self.changeTicks(f"attack{direction}")
-        self.animationPhases("attack"+direction, [1, 2, 3, 4])
+        self.animationPhases("attack"+direction, [1, 2])
+
+    def death(self):
+        self.changeTicks("death")
+        self.animationPhases("death", [1, 5, 8])
+
 

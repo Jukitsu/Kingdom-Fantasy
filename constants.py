@@ -87,10 +87,10 @@ STRUCTURES = {
 
 PNJ = [
     {
-        "skin":  "./resources/animations/pnj/Mage_PNJ.png",
-        "text": ["Bien le bonjour jeune aventurier!", "Pour te déplacer dans ce monde imprévisible, tu dois utiliser tes touches ZQSD.","Prends garde à toi, ce monde regorge de surprises et de pièges!",
-                 "Tu dois alors utiliser ton clic souris droit pour te défendre de tes advairsaires" "Je ne reste pas plus longtemps !" "Bon jeu à toi !"],
-        "position": (0, 0)
+        "skin":  "tuto",
+        "text": ["Bien le bonjour jeune aventurier!", "Pour te déplacer tu dois utiliser tes touches ZQSD.","Prends garde à toi, ce monde regorge de monstres!",
+                 "Tu dois utiliser ton clic gauche pour te défendre des slimes!", "Je ne reste pas plus longtemps ! Bon jeu à toi !"],
+        "position": (100, 100)
     }
 ]
 
