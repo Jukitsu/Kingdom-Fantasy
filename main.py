@@ -54,7 +54,7 @@ class EventHandler:
                     else:
                         if self.isChatboxDisplayed[1]+1 >= len(e.chat[0]):
                             self.isChatboxDisplayed = [False, 0]
-                            if level.coos == (200, 400):
+                            if e.skin == "military":
                                 level.entities.append(Entity(player, EntityType["MOB"], "slimeb", (190, 400), self.screen, level.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], True))
                             level.coos = (200, 400)
                             
