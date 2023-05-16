@@ -1,5 +1,6 @@
 import pygame, math
 from constants import SCREEN_WIDTH, SCREEN_HEIGHT
+
 def log(*args, **kw): # Debug
     print(*args, **kw)
 
