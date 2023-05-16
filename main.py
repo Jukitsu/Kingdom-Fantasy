@@ -22,10 +22,6 @@ class Level:
         self.hp = 10
         self.coos = ENDGAME_COORDINATES
 
-
-
-        
-
 class EventHandler:
     def __init__(self, game, screen):
         self.game = game # Game pointer
@@ -62,7 +58,10 @@ class EventHandler:
                     else:
                         if self.isChatboxDisplayed[1]+1 >= len(e.chat[0]):
                             self.isChatboxDisplayed = [False, 0]
+                            if level.coos == (200, 400):
+                                level.entities.append(Entity(player, EntityType["MOB"], "slimeb", (190, 400), self.screen, level.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], True))
                             level.coos = (200, 400)
+                            
                         else:
                             self.isChatboxDisplayed[1] += 1
                             ChatBox(e.chat[0], self.isChatboxDisplayed[1]).render(self.screen)
@@ -217,7 +216,7 @@ class Game:
             
     def loadPNJ(self):
         for i in range(500):
-            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], random.choice([False, False, False, True])))
+            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], False))
         for e in PNJ:
             self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False))
     

@@ -94,7 +94,7 @@ PNJ = [
     },
     {
         "skin":  "military",
-        "text": ["AH !!! QUI ES-TU ??", "Es-tu l'un d'entre eux !!?", "Ils nous observent, ils arrivent !", "Tue le plus de monstres possible sans te faire tuer"],
+        "text": ["AH !!! QUI ES-TU ??", "Es-tu l'un d'entre eux !!?", "Ils nous observent, ils arrivent !", "Tue le plus de monstres possible sans te faire tuer", "DERRIERE TOI !!!!"],
         "position": (200, 400)
     }
 ]
