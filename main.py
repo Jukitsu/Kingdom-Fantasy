@@ -145,7 +145,8 @@ class Game:
         self.loading = False
         self.running = True
         self.compass = Compass(self.level.coos, COMPASS_POSITION, self.screen)
-    
+        soundObj = pygame.mixer.Sound('./resources/video/tavern_music.mp3')
+        soundObj.play()
     # Saving and Loading
     def load(self):
         with open("save/level.dat", "rb") as f:
