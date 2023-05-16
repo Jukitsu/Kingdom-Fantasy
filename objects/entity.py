@@ -113,8 +113,9 @@ class Entity(pygame.sprite.Sprite):
 
     def chase(this):
         norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
-        this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
-        this.EntitiesAnimations.walk("l" if this.velocity[0] < 0 else "r", this.velocity)
+        if norm < 20:
+            this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
+            this.EntitiesAnimations.walk("l" if this.velocity[0] < 0 else "r", this.velocity)
         
     def check_borders(this, delta_time):
         if this.x + this.velocity[0] * delta_time * this.speed < 0:
