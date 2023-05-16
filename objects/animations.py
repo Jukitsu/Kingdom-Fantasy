@@ -143,6 +143,37 @@ class EntitiesAnimations:
                 ]
 
             },
+            "slime": {
+                "spawn": [
+                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimebr.png"),
+
+                ],
+                "walkr": [
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png")
+
+                ],
+                "walkl": [
+                    pygame.image.load("./resources/animations/entities/slime/slimel.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimel.png")
+
+                ],
+                "attackr": [
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackr0.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackr1.png")
+                ],
+                "attackl": [
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackl0.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeattackl1.png")
+                ],
+                "death": [
+                    pygame.image.load("./resources/animations/entities/slime/slimer.png"),
+                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
+
+                ]
+
+            },
             "tuto": {
                 "spawn": [
                     pygame.image.load("./resources/animations/pnj/Mage_PNJ.png"),
