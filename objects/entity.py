@@ -47,7 +47,7 @@ EntityType = {
 
 class Entity(pygame.sprite.Sprite):
     def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text, isMeyer):
-        this.hp = 10000 if skin in ["tuto", "military"] else 2
+        this.hp = 15 if skin == "slimeb" else 10000 if skin in ["tuto", "military"] else 2
         this.x, this.y = coords
         this.player = player
         this.velocity = [0, 0]
@@ -62,7 +62,7 @@ class Entity(pygame.sprite.Sprite):
         this.skin = skin
         this.rigidBody = pygame.Rect(this.x, this.y, 16, 16)
         this.isAttacking = [False, 0, "r"]
-        this.size = 128* 1.25
+        this.size = 128* 2 if skin=="slimeb" else 128* 1.25
         this.SCREEN_WIDTH = SCREEN_WIDTH
         this.SCREEN_HEIGHT = SCREEN_HEIGHT
         this.target = None
@@ -78,14 +78,11 @@ class Entity(pygame.sprite.Sprite):
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
             if skin:
-                if this.hp == 1:
-                    rayon = 5  # Rayon du cercle
-                    cercle_surface = pygame.Surface((rayon * 2, rayon * 2), pygame.SRCALPHA)
-                    couleur_cercle = (255, 0, 0)  # Exemple : Rouge (RVB)
-                    centre_cercle = (rayon, rayon)  # Centre du cercle
-                    pygame.draw.circle(cercle_surface, couleur_cercle, centre_cercle, rayon)
+                if this.hp != 2 or (this.hp != 15 and this.isMeyer):
+                    font = pygame.font.Font("./resources/fonts/medieval.ttf", 25)
+                    text = font.render(str(this.hp), True, (255, 0, 0))
+                    this.screen.blit(text, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2 +20, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2 + 20, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
 
-                    skin.blit(cercle_surface, (10, 10))
                 this.screen.blit(pygame.transform.scale(skin, (this.size, this.size)), (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
                 if this.isMeyer:
                     this.displayMeyer()
@@ -94,7 +91,6 @@ class Entity(pygame.sprite.Sprite):
         font = pygame.font.Font("./resources/fonts/whoask.ttf", 32)
         text = font.render('M.Meyer', True, (0, 0, 0))
         this.screen.blit(text, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2 + 30, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2 -20, 32, 32))
-
 
     def check_collision(this, delta_time):
         """Only use between friction modifications"""
@@ -119,8 +115,14 @@ class Entity(pygame.sprite.Sprite):
         norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
         this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
         this.EntitiesAnimations.walk("l" if this.velocity[0] < 0 else "r", this.velocity)
+        
+    def check_borders(this, delta_time):
+        if this.x + this.velocity[0] * delta_time * this.speed < 0:
+            this.velocity[0] = 0
+        if this.y + this.velocity[1] * delta_time * this.speed < 0:
+            this.velocity[1] = 0
 
-    def move(this, delta_time, player, dist):
+    def tick(this, delta_time, player, dist):
         if this.skin in ["tuto", "military"]:
             this.EntitiesAnimations.spawn()
             return
@@ -156,18 +158,19 @@ class Entity(pygame.sprite.Sprite):
                 else:
                     this.chase()
                     
+                    # Entity general movement physics
+        
+                    # v += a * f * dt
                     this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
 
-                    if this.x + this.velocity[0] * delta_time * this.speed < 0:
-                        this.velocity[0] = 0
-                    if this.y + this.velocity[1] * delta_time * this.speed < 0:
-                        this.velocity[1] = 0
-
+                    this.check_borders(delta_time)
                 
-
+                    # d = v * dt
                     this.x += this.velocity[0] * delta_time * this.speed
                     this.y += this.velocity[1] * delta_time * this.speed
 
-
+                    # v -= min(|v * f * dt|, |v|)
                     this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
+                    
+ 
 

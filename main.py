@@ -1,6 +1,5 @@
 import pygame, random, time, threading
 from objects.animations import PlayerAnimations
-from perlin_noise import PerlinNoise
 import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 from objects.player import Player
@@ -14,6 +13,7 @@ from tilemap import Tilemap
 StartTime=time.time()
 
 class Level:
+    """Level data from the save. Stored using pickle's encryption."""
     def __init__(self):
         self.tilemap = None
         self.player_coords = (97, 100)
@@ -22,7 +22,10 @@ class Level:
         self.hp = 10
         self.coos = ENDGAME_COORDINATES
 
+
 class EventHandler:
+    """General Handler for events"""
+    
     def __init__(self, game, screen):
         self.game = game # Game pointer
         self.animationAttackingDuration = 5
@@ -30,24 +33,17 @@ class EventHandler:
         self.isChatboxDisplayed = [False, 0]
 
     def didQuit(self):
-        # Did the user click the window close button?
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game.running = False
-    def dist(self, A, B):
-        return math.sqrt((A[0]-B[0])**2 + (A[1]-B[1])**2)
-    def playerActions(self, player, level):
-        keys = pygame.key.get_pressed()
 
-
-        
     def movePlayer(self, player, playerAnimations, level):
-
+        """Handle player movement events"""
         keys = pygame.key.get_pressed()
         clicks = pygame.mouse.get_pressed(num_buttons=3)
 
         for e in level.entities:
-            if e.type == EntityType["NPC"] and self.dist((e.x, e.y), (player.x, player.y)) <= 5:
+            if e.type == EntityType["NPC"] and math.dist((e.x, e.y), (player.x, player.y)) <= 5:
                 if self.isChatboxDisplayed[0]:
                     ChatBox(e.chat[0], self.isChatboxDisplayed[1]).render(self.screen)
 
@@ -103,7 +99,7 @@ class EventHandler:
                 toAttack = False
                 for e in level.entities:
 
-                    if self.dist((e.x, e.y), (player.x, player.y)) <= 5:
+                    if math.dist((e.x, e.y), (player.x, player.y)) <= 5:
                         toAttack = e
                 if toAttack:
                     direction = "l" if player_input[0] <= -1 else "r"
@@ -117,6 +113,7 @@ class EventHandler:
         
             
 class Game:
+    """Main Game. Entry point."""
     def __init__(self):
         # Initialize pygame
         pygame.init()
@@ -149,6 +146,7 @@ class Game:
         self.running = True
         self.compass = Compass(self.level.coos, COMPASS_POSITION, self.screen)
     
+    # Saving and Loading
     def load(self):
         with open("save/level.dat", "rb") as f:
             log("Loading level")
@@ -164,6 +162,8 @@ class Game:
             self.level.player_coords = (self.player.x, self.player.y)
             pickle.dump(self.level, f)
             log("Level saved")
+
+    # Text rendering
 
     def loadingText(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
@@ -221,7 +221,8 @@ class Game:
             self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False)) # Créer des entités pnj et rajout dans liste entités
     
     def run(self):
-        # Run until the user asks to quit
+        """Entry point"""
+        
         frame_time = time.perf_counter()
         time.sleep(0.01)
         delta_time = 0
@@ -241,9 +242,8 @@ class Game:
             self.clock.tick()
             self.fps_counter.display()
             for e in self.level.entities:
-                e.move(delta_time, self.player, self.event_handler.dist)
-            self.player.move(delta_time)
-            self.event_handler.playerActions(self.player,self.level)
+                e.tick(delta_time, self.player, math.dist)
+            self.player.tick(delta_time)
             self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)
             self.compass.render(self.level.coos, (self.player.x, self.player.y))
             # Flip the display
@@ -265,5 +265,9 @@ class Game:
 
 
 if __name__ == "__main__":
+# int main(void) {
+#   Game game = {};
     game = Game()
     game.run()
+#   return 0; 
+# }

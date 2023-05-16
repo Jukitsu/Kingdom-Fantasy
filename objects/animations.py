@@ -143,29 +143,30 @@ class EntitiesAnimations:
                 ]
 
             },
-            "slime": {
+            "slimeb": {
                 "spawn": [
-                    pygame.image.load("./resources/animations/entities/slime/slimeapparition1.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimebr.png"),
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebr.png"),
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebr.png"),
+
 
                 ],
                 "walkr": [
-                    pygame.image.load("./resources/animations/entities/slime/slimer.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimer.png")
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebr.png"),
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebr.png")
 
                 ],
                 "walkl": [
-                    pygame.image.load("./resources/animations/entities/slime/slimel.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimel.png")
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebl.png"),
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebl.png")
 
                 ],
                 "attackr": [
-                    pygame.image.load("./resources/animations/entities/slime/slimeattackr0.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimeattackr1.png")
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebattackr0.png"),
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebattackr1.png")
                 ],
                 "attackl": [
-                    pygame.image.load("./resources/animations/entities/slime/slimeattackl0.png"),
-                    pygame.image.load("./resources/animations/entities/slime/slimeattackl1.png")
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebattackl0.png"),
+                    pygame.image.load("./resources/animations/entities/slimeb/slimebattackl1.png")
                 ],
                 "death": [
                     pygame.image.load("./resources/animations/entities/slime/slimer.png"),

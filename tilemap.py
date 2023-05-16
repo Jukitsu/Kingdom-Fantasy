@@ -1,5 +1,7 @@
 from constants import *
-
+from perlin_noise import PerlinNoise
+from objects.utils import log
+import random
 class Tilemap:
     def __init__(self):
         self.map = []
