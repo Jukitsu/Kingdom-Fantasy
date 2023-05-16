@@ -163,7 +163,7 @@ class Game:
             self.level.player_coords = (self.player.x, self.player.y)
             pickle.dump(self.level, f)
             log("Level saved")
-
+    
     def loadingText(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
         font = pygame.font.Font("./resources/fonts/medieval.ttf", 32)
