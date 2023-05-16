@@ -298,8 +298,14 @@ class Game:
         text = font.render('THE END', True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
+        text2 = font.render(f"Tués: {self.level.counter}", True, (255, 255, 255))
+        text2Rect = text.get_rect()
+        text2Rect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 50)
+    
         self.screen.fill((0, 0, 0))
         self.screen.blit(text, textRect)
+        self.screen.blit(text2, text2Rect)
+
         pygame.display.flip()
 
     def cinematique(self):
@@ -326,7 +332,7 @@ class Game:
             pygame.display.flip()
     def loadPNJ(self):
         for i in range(500):
-            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], random.choice([False, False, False, False, True])))
+            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], random.choice([False, False, False, True])))
         for e in PNJ:
             self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False))
     
