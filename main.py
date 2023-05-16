@@ -19,6 +19,8 @@ class Level:
         self.entities = []
         self.counter = 0
         self.hp = 10
+        self.coos = ENDGAME_COORDINATES
+
 class Tilemap:
     def __init__(self):
         self.map = []
@@ -119,12 +121,12 @@ class ChatBox:
         self.i = i
     def render(self, screen):
         # chatbox
-        chat = pygame.transform.scale(pygame.image.load("./resources/textures/parchemin.png"), (1028, 1028))
+        chat = pygame.transform.scale(pygame.image.load("./resources/textures/parchemin.png"), (1500, 1500))
         chatRect = chat.get_rect()
         chatRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
         
         # text
-        font = pygame.font.Font(None, 32)
+        font = pygame.font.Font("./resources/fonts/medieval.ttf", 32)
         text = font.render(self.text[self.i], True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
@@ -176,6 +178,7 @@ class EventHandler:
                     else:
                         if self.isChatboxDisplayed[1]+1 >= len(e.chat[0]):
                             self.isChatboxDisplayed = [False, 0]
+                            level.coos = (200, 400)
                         else:
                             self.isChatboxDisplayed[1] += 1
                             ChatBox(e.chat[0], self.isChatboxDisplayed[1]).render(self.screen)
@@ -252,7 +255,7 @@ class Game:
             
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
-        self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, self.level)
+        self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, self.level, False)
         self.event_handler = EventHandler(self, self.screen)
 
         # self.level.entities.append(Entity((40, 23), self.screen))
@@ -261,7 +264,7 @@ class Game:
         self.playerAnimations = PlayerAnimations(self.player)
         self.loading = False
         self.running = True
-        self.compass = Compass(ENDGAME_COORDINATES, COMPASS_POSITION, self.screen)
+        self.compass = Compass(self.level.coos, COMPASS_POSITION, self.screen)
     
     def load(self):
         with open("save/level.dat", "rb") as f:
@@ -281,7 +284,7 @@ class Game:
 
     def loadingText(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
-        font = pygame.font.Font(None, 32)
+        font = pygame.font.Font("./resources/fonts/medieval.ttf", 32)
         text = font.render('Chargement...', True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
@@ -291,7 +294,7 @@ class Game:
 
     def endText(self):
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
-        font = pygame.font.Font(None, 32)
+        font = pygame.font.Font("./resources/fonts/medieval.ttf", 32)
         text = font.render('THE END', True, (255, 255, 255))
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
@@ -300,7 +303,7 @@ class Game:
         pygame.display.flip()
 
     def cinematique(self):
-        video = cv2.VideoCapture("./resources/video/Annim_nuages_sans_narration.mp4")
+        video = cv2.VideoCapture("./resources/video/anim_naration.mp4")
         success, video_image = video.read()
         fps = video.get(cv2.CAP_PROP_FPS)
         self.screen = pygame.display.set_mode(video_image.shape[1::-1], pygame.FULLSCREEN)
@@ -323,9 +326,9 @@ class Game:
             pygame.display.flip()
     def loadPNJ(self):
         for i in range(500):
-            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""]))
+            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], random.choice([False, False, False, False, True])))
         for e in PNJ:
-            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"]))
+            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False))
     
     def run(self):
         # Run until the user asks to quit
@@ -352,7 +355,7 @@ class Game:
             self.player.move(delta_time)
             self.event_handler.playerActions(self.player,self.level)
             self.event_handler.movePlayer(self.player, self.playerAnimations, self.level)
-            self.compass.render((self.player.x, self.player.y))
+            self.compass.render(self.level.coos, (self.player.x, self.player.y))
             # Flip the display
             pygame.display.flip()
             
@@ -361,8 +364,9 @@ class Game:
             
 
         # Done! Time to quit.
-        self.endText()
-        time.sleep(5)
+        if self.level.hp <= 0:
+            self.endText()
+            time.sleep(5)
         self.save()
         pygame.quit()
 

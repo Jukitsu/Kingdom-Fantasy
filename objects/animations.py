@@ -149,6 +149,13 @@ class EntitiesAnimations:
                     pygame.image.load("./resources/animations/pnj/Mage_PNJ.png"),
                     pygame.image.load("./resources/animations/pnj/Mage_PNJ.png"),
                 ]
+            },
+            "military": {
+                "spawn": [
+                    pygame.image.load("./resources/animations/pnj/pnjmilitaryr0.png"),
+                    pygame.image.load("./resources/animations/pnj/pnjmilitaryl0.png"),
+                    pygame.image.load("./resources/animations/pnj/pnjmilitaryr0.png"),
+                ]
             }
         }  
         self.STATUS = {

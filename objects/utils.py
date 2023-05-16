@@ -25,10 +25,9 @@ class Compass:
         angle_deg = math.degrees(radians)
         return (-(angle_deg -270) + 360) % 360
 
-    def render(self, objPos):
+    def render(self, polePos, objPos):
 
-        
-        direction = (self.polePos[0] - objPos[0], self.polePos[1] - objPos[1]) # x, y
+        direction = (polePos[0] - objPos[0], polePos[1] - objPos[1]) # x, y
         rect = self.indicator.get_rect()
         rotated_image = pygame.Surface(rect.size, pygame.SRCALPHA)
         center = rect.center 

@@ -89,8 +89,13 @@ PNJ = [
     {
         "skin":  "tuto",
         "text": ["Bien le bonjour jeune aventurier!", "Pour te déplacer tu dois utiliser tes touches ZQSD.","Prends garde à toi, ce monde regorge de monstres!",
-                 "Tu dois utiliser ton clic gauche pour te défendre des slimes!", "Je ne reste pas plus longtemps ! Bon jeu à toi !"],
+                 "Tu dois utiliser ton clic gauche pour te défendre des slimes!", "Taper une fois le slime le mettera en coup critique", "Et le taper une seconde fois le tuera", "Suis la boussole, elle te guidera !",  "Je ne reste pas plus longtemps ! Bon jeu à toi !"],
         "position": (100, 100)
+    },
+    {
+        "skin":  "military",
+        "text": ["AH !!! QUI ES-TU ??", "Es-tu l'un d'entre eux !!?", "Ils nous observent, ils arrivent !", ""],
+        "position": (200, 400)
     }
 ]
 

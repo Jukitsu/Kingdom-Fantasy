@@ -64,8 +64,8 @@ EntityType = {
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text):
-        this.hp = 10000 if skin == "tuto" else 2
+    def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text, isMeyer):
+        this.hp = 10000 if skin in ["tuto", "military"] else 2
         this.x, this.y = coords
         this.player = player
         this.velocity = [0, 0]
@@ -91,6 +91,7 @@ class Entity(pygame.sprite.Sprite):
         this.EntitiesAnimations = EntitiesAnimations(this.player, this)
         this.isAttacked = True
         this.cooldownAttack = 0
+        this.isMeyer = isMeyer
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
             if skin:
@@ -103,6 +104,12 @@ class Entity(pygame.sprite.Sprite):
 
                     skin.blit(cercle_surface, (10, 10))
                 this.screen.blit(pygame.transform.scale(skin, (this.size, this.size)), (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
+                if this.isMeyer:
+                    this.displayMeyer()
+    def displayMeyer(this):
+        font = pygame.font.Font(None, 32)
+        text = font.render('M.Meyer', True, (255, 255, 255))
+        this.screen.blit(text, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2 + 30, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2 -20, 32, 32))
 
 
     def check_collision(this, delta_time):
@@ -172,7 +179,7 @@ class Entity(pygame.sprite.Sprite):
         this.EntitiesAnimations.walk("l" if this.velocity[0] < 0 else "r", this.velocity)
 
     def move(this, delta_time, player, dist):
-        if this.skin == "tuto":
+        if this.skin in ["tuto", "military"]:
             this.EntitiesAnimations.spawn()
         else:
             if this.hp > 0 and this.cooldownDeath < 20:
