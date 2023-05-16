@@ -1,6 +1,5 @@
 import pygame, random, time, threading
 from objects.animations import PlayerAnimations
-from perlin_noise import PerlinNoise
 import pathlib, cv2, pickle, math # cv2 = opencv-python
 
 from objects.player import Player

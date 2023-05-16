@@ -47,7 +47,7 @@ EntityType = {
 
 class Entity(pygame.sprite.Sprite):
     def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text, isMeyer):
-        this.hp = 10000 if skin in ["tuto", "military"] else 2
+        this.hp = 15 if skin == "slimeb" else 10000 if skin in ["tuto", "military"] else 2
         this.x, this.y = coords
         this.player = player
         this.velocity = [0, 0]
@@ -62,7 +62,7 @@ class Entity(pygame.sprite.Sprite):
         this.skin = skin
         this.rigidBody = pygame.Rect(this.x, this.y, 16, 16)
         this.isAttacking = [False, 0, "r"]
-        this.size = 128* 1.25
+        this.size = 128* 1.75 if skin=="slimeb" else 128* 1.25
         this.SCREEN_WIDTH = SCREEN_WIDTH
         this.SCREEN_HEIGHT = SCREEN_HEIGHT
         this.target = None
