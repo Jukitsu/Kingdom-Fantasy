@@ -131,7 +131,7 @@ class ChatBox:
         textRect = text.get_rect()
         textRect.center = (SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
 
-        legend = font.render("e pour fermer" if self.i+1 == len(self.text) else "e pour passer", True, (0, 0, 0))
+        legend = font.render("E pour fermer" if self.i+1 == len(self.text) else "E pour passer", True, (0, 0, 0))
         legendRect = legend.get_rect()
         legendRect.center = (SCREEN_WIDTH//1.5, SCREEN_HEIGHT//1.5)
 
@@ -373,7 +373,8 @@ class Game:
         if self.level.hp <= 0:
             self.endText()
             time.sleep(5)
-        self.save()
+        else:
+            self.save()
         pygame.quit()
 
     
