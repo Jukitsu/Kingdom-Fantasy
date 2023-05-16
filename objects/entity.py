@@ -92,6 +92,7 @@ class Entity(pygame.sprite.Sprite):
         this.isAttacked = True
         this.cooldownAttack = 0
         this.isMeyer = isMeyer
+        
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
             if skin:
@@ -106,6 +107,7 @@ class Entity(pygame.sprite.Sprite):
                 this.screen.blit(pygame.transform.scale(skin, (this.size, this.size)), (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2, 32, 32)) # joueur toujours au millieu de l'écran, c'est le bg qui bouge
                 if this.isMeyer:
                     this.displayMeyer()
+                    
     def displayMeyer(this):
         font = pygame.font.Font(None, 32)
         text = font.render('M.Meyer', True, (255, 255, 255))
@@ -114,62 +116,20 @@ class Entity(pygame.sprite.Sprite):
 
     def check_collision(this, delta_time):
         """Only use between friction modifications"""
-        for _ in range(2):
-            adjusted_velocity = [v * delta_time for v in this.velocity]
-            vx, vy = adjusted_velocity
+        def isCollider(i, j):
+            tile = this.tilemap.map[int(i)][int(j)]
 
-            # find all the blocks we could potentially be colliding with
-            # this step is known as "broad-phasing"
-
-            step_x = 1 if vx > 0 else -1
-            step_y = 1 if vy > 0 else -1
-
-            steps_xz = 1
-            steps_y  = 1
-
-            x, y = int(this.x), int(this.y)
-            cx, cy = [int(x + v) for x, v in zip((this.x, this.y), adjusted_velocity)]
-
-            potential_collisions = []
-
-            for i in range(x - step_x * (steps_xz + 2), cx + step_x * (steps_xz + 2), step_x):
-                for j in range(y - step_y * (steps_y + 2), cy + step_y * (steps_y + 2), step_y):
-                    pos = (i, j)
-                    
-                    if i < 0 and j < 0:
-                        continue
-                    tile = this.tilemap.map[i][j]
-
-                    if not tile in [11, 12]:
-                        continue
-                    
-                    entry_time, normal = collide((this.x, this.y, this.x + 2, this.y + 2), (i, j, i+1, j+1), adjusted_velocity)
-
-                    if normal is None:
-                        continue
-
-                    potential_collisions.append((entry_time, normal))
-
-            # get first collision
-
-            if not potential_collisions:
-                break
-
-            entry_time, normal = min(potential_collisions, key = lambda x: x[0])
-            entry_time -= 0.001
-
-            if normal[0]:
-                this.velocity[0] = 0
-                this.x += vx * entry_time
-            
-            if normal[1]:
-                this.velocity[1] = 0
-                this.y += vy * entry_time
+            return tile in [11, 12]
+                
+        if isCollider(this.x + this.velocity[0] * delta_time * this.speed, this.y + this.velocity[1] * delta_time * this.speed):
+            this.velocity = [0, 0]
+                
                 
     def hurt(this, damage):
         this.hp -= damage
         if this.hp <= 0:
             this.EntitiesAnimations.death()
+            
     def attackPlayer(this):
         this.player.hurt(1)
 

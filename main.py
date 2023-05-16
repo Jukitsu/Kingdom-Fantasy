@@ -258,7 +258,7 @@ class Game:
         self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, self.level, False)
         self.event_handler = EventHandler(self, self.screen)
 
-        # self.level.entities.append(Entity((40, 23), self.screen))
+        
         self.loadPNJ()
         self.fps_counter = FPScounter(self.clock, self.screen, self.player)
         self.playerAnimations = PlayerAnimations(self.player)
