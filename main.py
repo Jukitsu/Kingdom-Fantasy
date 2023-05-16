@@ -215,10 +215,10 @@ class Game:
             pygame.display.flip()
             
     def loadPNJ(self):
-        for i in range(500):
-            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], False))
-        for e in PNJ:
-            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False))
+        for i in range(500): # Créer 500 slimes
+            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], False)) # Créer une classe entités et rajout dans liste entités
+        for e in PNJ: # dans la liste des pnj qui vient de constant
+            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False)) # Créer des entités pnj et rajout dans liste entités
     
     def run(self):
         # Run until the user asks to quit
