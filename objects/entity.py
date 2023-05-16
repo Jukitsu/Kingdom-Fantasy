@@ -95,7 +95,6 @@ class Entity(pygame.sprite.Sprite):
         text = font.render('M.Meyer', True, (0, 0, 0))
         this.screen.blit(text, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2 + 30, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2 -20, 32, 32))
 
-
     def check_collision(this, delta_time):
         """Only use between friction modifications"""
         def isCollider(i, j):
@@ -119,8 +118,14 @@ class Entity(pygame.sprite.Sprite):
         norm = math.sqrt((this.player.x - this.x) ** 2 + (this.player.y - this.y) ** 2)
         this.accel = [(this.player.x - this.x) / norm, (this.player.y - this.y) / norm]
         this.EntitiesAnimations.walk("l" if this.velocity[0] < 0 else "r", this.velocity)
+        
+    def check_borders(this, delta_time):
+        if this.x + this.velocity[0] * delta_time * this.speed < 0:
+            this.velocity[0] = 0
+        if this.y + this.velocity[1] * delta_time * this.speed < 0:
+            this.velocity[1] = 0
 
-    def move(this, delta_time, player, dist):
+    def tick(this, delta_time, player, dist):
         if this.skin in ["tuto", "military"]:
             this.EntitiesAnimations.spawn()
             return
@@ -156,18 +161,19 @@ class Entity(pygame.sprite.Sprite):
                 else:
                     this.chase()
                     
+                    # Entity general movement physics
+        
+                    # v += a * f * dt
                     this.velocity = [v + a * f * delta_time for v, a, f in zip(this.velocity, this.accel, this.friction)]
 
-                    if this.x + this.velocity[0] * delta_time * this.speed < 0:
-                        this.velocity[0] = 0
-                    if this.y + this.velocity[1] * delta_time * this.speed < 0:
-                        this.velocity[1] = 0
-
+                    this.check_borders(delta_time)
                 
-
+                    # d = v * dt
                     this.x += this.velocity[0] * delta_time * this.speed
                     this.y += this.velocity[1] * delta_time * this.speed
 
-
+                    # v -= min(|v * f * dt|, |v|)
                     this.velocity = [v - min(v * f * delta_time, v, key = abs) for v, f in zip(this.velocity, this.friction)]
+                    
+ 
 
