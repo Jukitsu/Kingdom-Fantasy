@@ -2,6 +2,7 @@ from constants import *
 from perlin_noise import PerlinNoise
 from objects.utils import log
 import random
+
 class Tilemap:
     """Map generator and map rendering. Used Perlin Noise algorithm"""
     def __init__(self):
@@ -27,7 +28,7 @@ class Tilemap:
 
     def generateMap(self):
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
-        noise = PerlinNoise(octaves = 50, seed = 500)
+        noise = PerlinNoise(octaves = 50, seed = random.randint(400, 600))
 
         log("Generating Terrain")
         
