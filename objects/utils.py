@@ -5,6 +5,7 @@ def log(*args, **kw): # Debug
     print(*args, **kw)
 
 class FPScounter:
+    """Developpement tools"""
     def __init__(self, clock, screen, player):
         self.clock = clock
         self.screen = screen
@@ -16,6 +17,7 @@ class FPScounter:
         self.screen.blit(img, (2, 2))
 
 class Compass:
+    """Direction to the next PNJ in story (polePos)"""
     def __init__(self, polePos, position, screen):
         self.polePos = polePos
         self.indicator = pygame.transform.scale(pygame.image.load('./resources/textures/indicator.png'), (128, 128))
@@ -42,7 +44,7 @@ class Compass:
         # indicator
         indicator = self.screen.blit(rotated_image, rotated_rect)
 class Counter:
-
+    """Kills and hp counter from Level Object"""
     def render(self, screen, level):
 
         # text

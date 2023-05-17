@@ -6,10 +6,11 @@ import objects.entity as entity
 
 
 class Player(entity.Entity):
-    def __init__(self, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, level, isMeyer):
+    """Heritated from Entity Object but with special functions"""
+    def __init__(self, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, chat, isMeyer, level):
         super().__init__(self, entity.EntityType["PLAYER"],
                          "",
-                         coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], isMeyer=False)
+                         coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], isMeyer, level)
         self.speed = 8
         self.level = level
         

@@ -12,6 +12,7 @@ def set_interval(func, sec):
 
 
 class PlayerAnimations:
+    """Animation bank for Player object"""
     def __init__(self, player):
         self.skins = {
             "idle":[
@@ -108,8 +109,8 @@ class PlayerAnimations:
         self.animationPhases("attack"+direction, [0.5, 1, 1.5, 2])
         
         
-        
 class EntitiesAnimations:
+    """Animation bank and handler for Entity object"""
     def __init__(self, player, entity):
         self.skins = {
             "slime": {

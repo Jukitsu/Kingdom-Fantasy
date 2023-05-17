@@ -8,10 +8,11 @@ import random
 import math
 
 def sign(x):
-    return (x > 0) - (x < 0)
+    return (x > 0) - (x < 0) # get the sign of an expression
 
 
 class ChatBox:
+    """Handle reactive render"""
     def __init__(self, text, i):
         self.text = text
         self.i = i
@@ -46,7 +47,8 @@ EntityType = {
 
 
 class Entity(pygame.sprite.Sprite):
-    def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text, isMeyer):
+    """Every entities in the game's Object"""
+    def __init__(this, player, etype, skin, coords, screen, tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, text, isMeyer, level):
         this.hp = 15 if skin == "slimeb" else 10000 if skin in ["tuto", "military"] else 2
         this.x, this.y = coords
         this.player = player
@@ -74,7 +76,7 @@ class Entity(pygame.sprite.Sprite):
         this.isAttacked = True
         this.cooldownAttack = 0
         this.isMeyer = isMeyer
-        
+        this.level = level
     def render(this, skin=None):
         if abs(this.x - this.player.x) < 44 and abs(this.y - this.player.y) < 26:
             if skin:
@@ -107,6 +109,8 @@ class Entity(pygame.sprite.Sprite):
         this.hp -= damage
         if this.hp <= 0:
             this.EntitiesAnimations.death()
+            this.player.hp += 3 if this.skin == "slimeb" else 1 if random.randint(1, 5) == 2 else 0
+            this.level.hp = this.player.hp
             
     def attackPlayer(this):
         this.player.hurt(1)

@@ -55,7 +55,7 @@ class EventHandler:
                         if self.isChatboxDisplayed[1]+1 >= len(e.chat[0]):
                             self.isChatboxDisplayed = [False, 0]
                             if e.skin == "military":
-                                level.entities.append(Entity(player, EntityType["MOB"], "slimeb", (190, 400), self.screen, level.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], True))
+                                level.entities.append(Entity(player, EntityType["MOB"], "slimeb", (190, 400), self.screen, level.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], True, level))
                             level.coos = (200, 400)
                             
                         else:
@@ -135,7 +135,7 @@ class Game:
             
                         
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0)
-        self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, self.level, False)
+        self.player = Player(self.level.player_coords, self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], False, self.level)
         self.event_handler = EventHandler(self, self.screen)
 
         
@@ -217,9 +217,9 @@ class Game:
             
     def loadPNJ(self):
         for i in range(500): # Créer 500 slimes
-            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], False)) # Créer une classe entités et rajout dans liste entités
+            self.level.entities.append(Entity(self.player, EntityType["MOB"], "slime", (random.randint(0, 500), random.randint(0, 500)), self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, [""], False, self.level)) # Créer une classe entités et rajout dans liste entités
         for e in PNJ: # dans la liste des pnj qui vient de constant
-            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False)) # Créer des entités pnj et rajout dans liste entités
+            self.level.entities.append(Entity(self.player, EntityType["NPC"], e["skin"], e["position"], self.screen, self.tilemap, FRICTION, SCREEN_WIDTH, SCREEN_HEIGHT, e["text"], False, self.level)) # Créer des entités pnj et rajout dans liste entités
     
     def run(self):
         """Entry point"""

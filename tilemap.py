@@ -3,6 +3,7 @@ from perlin_noise import PerlinNoise
 from objects.utils import log
 import random
 class Tilemap:
+    """Map generator and map rendering. Used Perlin Noise algorithm"""
     def __init__(self):
         self.map = []
         self.view_offset = [0, 0]
@@ -24,39 +25,36 @@ class Tilemap:
                         return True 
             return False
 
-    def generateMap(self): # fonction a modifier c'est pour tester les couleurs
+    def generateMap(self):
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
         noise = PerlinNoise(octaves = 50, seed = 500)
 
         log("Generating Terrain")
-        # Generating Terrain
+        
         for i in range(500):
             for j in range(500):
-                height = abs(noise((i / 2500, j / 2500))) * 255
-                if  10 < height < 50 and self.searchAround((i,j), 10, [14]):
-                    self.map[i][j] = self.randomStructure(self.randomStructure(self.random(self.random(4,3, 3), 10 , 10), [11,13], 3), [21,22,23,24,25],500) 
-                else:
+                height = abs(noise((i / 2500, j / 2500))) * 255 # Using this algorithm, all is about the theorical height of the map (between 0 and 100)
                 
-                    if height < 5:
-                        self.map[i][j] = self.random(0, 1, 2)
-                    elif height < 10:
-                        self.map[i][j] = 2
-                    elif height < 40:
-                        if 20 < height < 25:
-                            self.map[i][j] = self.randomStructure(self.random(4,3, 3), [15,28,27,16,17,18,19] , 500) # if self.random(2, 14, 2500) == 2 else 14 villages désactivés
-                        else:
-                            self.map[i][j] = self.random(3, 4, 4)
-
-                    elif height < 60:
-                        if 45 < height < 50:
-                            self.map[i][j] = self.randomStructure(self.randomStructure(5, [6, 7, 8, 9], 5), [15,28,27,16,17,18,19], 500) # if self.random(2, 14, 2500) == 2 else 14 villages désactivés
-                        else:
-                            self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 15)
-
-                    elif height < 80:
-                        self.map[i][j] = self.random(11, 29, 25)
+                if height < 5:
+                    self.map[i][j] = self.random(0, 1, 2) # generate water
+                elif height < 10:
+                    self.map[i][j] = 2 # generate sand 
+                elif height < 40:
+                    if 30 < height < 40:
+                        self.map[i][j] = self.randomStructure(self.randomStructure(self.random(4,3, 3), [15,28,27,16,17,18,19,21,22,23,25] , 1000), [21,22,23,25], 2500) # Multiple functional expression: generate random house -> then generate random trees and rocks -> then generate grass
                     else:
-                        self.map[i][j] = self.random(12, 30, 2)
+                        self.map[i][j] = self.random(3, 4, 4) # generate different grass types
+
+                elif height < 60:
+                    if 40 < height < 45:
+                        self.map[i][j] = self.randomStructure(self.randomStructure(self.randomStructure(5, [6, 7, 8, 9], 5), [15,28,27,16,17,18,19], 1000), [21,22,23,25], 2500) # Multiple functional expression: generate random house -> then generate random trees and rocks -> then generate grass
+                    else:
+                        self.map[i][j] = self.randomStructure(5, [6, 7, 8, 9], 15) # generate different grass types
+
+                elif height < 80:
+                    self.map[i][j] = self.random(11, 29, 25) # generate mountains
+                else:
+                    self.map[i][j] = self.random(12, 30, 2) # generate snow in top of mountains
 
         log("Terrain Generated")
 
@@ -66,32 +64,38 @@ class Tilemap:
         textures = []
         tile_entities = []
         for x in range(round(player.x - 44), round(player.x + 44)):
-            for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES. TO CHANGE
+            for y in range(round(player.y - 26), round(player.y + 26)): # CLIPPING VALUES.
                 tile = self.map[x][y]
                 
                 if tile < 31:
                     if len(COLORS[tile]) == 3:
+                        # render rgb tiles
                         pygame.draw.rect(surface, COLORS[tile] , pygame.Rect(x * 32 - round(player.x * 32) + SCREEN_WIDTH // 2, y * 32 - round(player.y * 32) + SCREEN_HEIGHT // 2, 32, 32))
 
                     else:
+                        # render images tiles
                         correction = [0, 0]
+                        size = 0
                         name = COLORS[tile].split(".")[0]
                         idx = int(COLORS[tile].split(".")[1])
                         if name in ["house", "tree", "rocks"]:
                             if name == "house":
                                 correction = [90, 128]
+                                size = 256
                             elif name == "tree":
                                 correction = [40, 40]
+                                size = 128
                             elif name == "rocks":
+                                size = 128
                                 if idx == 2:
                                     correction = [45, 45]
                                 elif idx == 1:
                                     correction = [45, 95]
-                            tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (128, 128)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
+                            tile_entities.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (size, size)), (x * 32 - correction[0] - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 -correction[1]- round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
                         else:
                             textures.append((pygame.transform.scale(STRUCTURES[COLORS[tile].split(".")[0]][int(COLORS[tile].split(".")[1])], (32, 32)), (x * 32  - round(player.x * 32)  + (SCREEN_WIDTH // 2 ), y * 32 - round(player.y * 32)  + (SCREEN_HEIGHT // 2)))) # joueur toujours au millieu de l'écran, c'est le bg qui bouge                
         for t in textures:
-            surface.blit(t[0], t[1])
+            surface.blit(t[0], t[1]) # render grounded tiles before special structures tiles
         for e in tile_entities:
             surface.blit(e[0], e[1])
 
