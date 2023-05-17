@@ -2,6 +2,7 @@ from constants import *
 from perlin_noise import PerlinNoise
 from objects.utils import log
 import random
+
 class Tilemap:
     def __init__(self):
         self.map = []
@@ -26,7 +27,7 @@ class Tilemap:
 
     def generateMap(self): # fonction a modifier c'est pour tester les couleurs
         self.map = [[0 for j in range(MAP_SIZE)] for i in range(MAP_SIZE)] # First launch
-        noise = PerlinNoise(octaves = 50, seed = 500)
+        noise = PerlinNoise(octaves = 50, seed = random.randint(400, 600))
 
         log("Generating Terrain")
         # Generating Terrain
