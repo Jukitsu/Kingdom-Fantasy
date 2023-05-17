@@ -99,7 +99,7 @@ class EventHandler:
                 toAttack = False
                 for e in level.entities:
 
-                    if math.dist((e.x, e.y), (player.x, player.y)) <= 5:
+                    if math.dist((e.x, e.y), (player.x, player.y)) <= 2:
                         toAttack = e
                 if toAttack:
                     direction = "l" if player_input[0] <= -1 else "r"

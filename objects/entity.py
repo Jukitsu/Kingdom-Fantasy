@@ -91,7 +91,7 @@ class Entity(pygame.sprite.Sprite):
                     
     def displayMeyer(this):
         font = pygame.font.Font("./resources/fonts/whoask.ttf", 32)
-        text = font.render('M.Recoing', True, (0, 0, 0))
+        text = font.render('Mme.Arzeno', True, (0, 0, 0))
         this.screen.blit(text, (this.x * 32 - round(this.player.x * 32) + this.SCREEN_WIDTH // 2 + 30, this.y * 32 - round(this.player.y * 32) + this.SCREEN_HEIGHT // 2 -20, 32, 32))
 
     def check_collision(this, delta_time):
@@ -154,7 +154,7 @@ class Entity(pygame.sprite.Sprite):
             else:
                 this.cooldownSpawn = 0
 
-                if dist((this.x, this.y), (player.x, player.y)) <= 3:
+                if dist((this.x, this.y), (player.x, player.y)) <= 2:
                     this.EntitiesAnimations.attack("l" if this.velocity[0] < 0 else "r")
                     this.cooldownAttack += 1
                     if this.cooldownAttack > 30:
